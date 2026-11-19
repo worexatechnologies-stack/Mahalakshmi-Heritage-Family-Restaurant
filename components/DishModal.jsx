@@ -21,18 +21,18 @@ export default function DishModal({ dish, isOpen, onClose, onOrderDish }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-lg bg-[#151518] border border-[#2b2b2f] rounded-2xl overflow-hidden shadow-2xl text-[#f4ede4]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-sm animate-fade-in overflow-y-auto">
+      <div className="relative w-full max-w-lg bg-[#151518] border border-[#2b2b2f] rounded-2xl overflow-hidden shadow-2xl text-[#f4ede4] max-h-[92vh] overflow-y-auto my-auto">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 bg-black/60 text-white p-2 rounded-full hover:bg-black/90 transition"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 bg-black/70 text-white p-2 rounded-full hover:bg-black/90 transition"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
 
         {/* Dish Image */}
-        <div className="relative h-64 w-full bg-neutral-900">
+        <div className="relative h-48 sm:h-64 w-full bg-neutral-900">
           <Image
             src={dish.image}
             alt={dish.name}

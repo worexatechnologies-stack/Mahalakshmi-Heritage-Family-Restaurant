@@ -40,8 +40,8 @@ export default function ReservationModal({ isOpen, onClose, onBookingSuccess }) 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fade-in overflow-y-auto">
-      <div className="relative w-full max-w-lg bg-[#141416] border border-[#2b2b2e] rounded-2xl p-6 sm:p-8 shadow-2xl text-[#f4ede4] my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-sm animate-fade-in overflow-y-auto">
+      <div className="relative w-full max-w-lg bg-[#141416] border border-[#2b2b2e] rounded-2xl p-5 sm:p-8 shadow-2xl text-[#f4ede4] max-h-[92vh] overflow-y-auto my-auto">
         {/* Close Button */}
         <button
           onClick={handleReset}

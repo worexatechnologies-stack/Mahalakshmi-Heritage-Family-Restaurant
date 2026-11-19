@@ -23,7 +23,7 @@ export default function Footer({ onSubscribe }) {
   };
 
   return (
-    <footer id="footer" className="relative pt-24 pb-12 overflow-hidden bg-[#0a0a0c]">
+    <footer id="footer" className="relative pt-16 sm:pt-24 pb-8 sm:pb-12 overflow-hidden bg-[#0a0a0c]">
       
       {/* Background Ambience Image */}
       <div className="absolute inset-0 z-0 opacity-20">
@@ -39,13 +39,13 @@ export default function Footer({ onSubscribe }) {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Floating White / Light Card Container matching screenshot */}
-        <div className="bg-[#f7f4ee] text-[#1c1a17] rounded-3xl p-8 sm:p-12 lg:p-14 shadow-2xl border border-white/40">
+        <div className="bg-[#f7f4ee] text-[#1c1a17] rounded-2xl sm:rounded-3xl p-5 sm:p-10 lg:p-14 shadow-2xl border border-white/40">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12">
             
             {/* Left Column: Brand & Socials (5 cols) */}
             <div className="lg:col-span-5 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-[#cba158]/60 bg-black flex-shrink-0 shadow-sm">
+                <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden border border-[#cba158]/60 bg-black flex-shrink-0 shadow-sm">
                   <Image
                     src="/logo.jpg"
                     alt="Mahalakshmi Spice Heritage"
@@ -54,10 +54,10 @@ export default function Footer({ onSubscribe }) {
                   />
                 </div>
                 <div>
-                  <span className="font-serif text-lg sm:text-xl font-bold tracking-wide text-[#1c1a17] block leading-tight">
+                  <span className="font-serif text-base sm:text-xl font-bold tracking-wide text-[#1c1a17] block leading-tight">
                     Mahalakshmi <span className="font-serif italic text-[#cba158]">Spice Heritage</span>
                   </span>
-                  <span className="text-[10px] font-semibold text-[#8b857b] uppercase tracking-widest block">
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-[#8b857b] uppercase tracking-widest block">
                     Family Restaurant
                   </span>
                 </div>
@@ -67,12 +67,12 @@ export default function Footer({ onSubscribe }) {
               </p>
 
               {/* Social Icons */}
-              <div className="flex items-center space-x-3 pt-2">
+              <div className="flex items-center space-x-2.5 pt-1">
                 {["Instagram", "Facebook", "YouTube", "WhatsApp"].map((social) => (
                   <a
                     key={social}
                     href={`#${social.toLowerCase()}`}
-                    className="w-9 h-9 rounded-full bg-[#ebe5db] hover:bg-[#cba158] hover:text-white text-[#2a2825] flex items-center justify-center text-xs font-semibold transition"
+                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#ebe5db] hover:bg-[#cba158] hover:text-white text-[#2a2825] flex items-center justify-center text-xs font-semibold transition"
                     title={social}
                   >
                     {social[0]}
@@ -82,11 +82,11 @@ export default function Footer({ onSubscribe }) {
             </div>
 
             {/* Quick Links Column (2 cols) */}
-            <div className="lg:col-span-2 space-y-3">
+            <div className="lg:col-span-2 space-y-2 sm:space-y-3">
               <h5 className="text-xs uppercase tracking-widest font-bold text-[#1c1a17]">
                 Quick Links
               </h5>
-              <ul className="space-y-2 text-xs sm:text-sm text-[#5a5650]">
+              <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-[#5a5650]">
                 <li><a href="#hero" className="hover:text-[#cba158] transition">Home</a></li>
                 <li><a href="#about" className="hover:text-[#cba158] transition">About Us</a></li>
                 <li><a href="#signatures" className="hover:text-[#cba158] transition">Royal Menu</a></li>
@@ -97,11 +97,11 @@ export default function Footer({ onSubscribe }) {
             </div>
 
             {/* Support Column (2 cols) */}
-            <div className="lg:col-span-2 space-y-3">
+            <div className="lg:col-span-2 space-y-2 sm:space-y-3">
               <h5 className="text-xs uppercase tracking-widest font-bold text-[#1c1a17]">
                 Hospitality
               </h5>
-              <ul className="space-y-2 text-xs sm:text-sm text-[#5a5650]">
+              <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-[#5a5650]">
                 <li><a href="#experience" className="hover:text-[#cba158] transition">Family Banquets</a></li>
                 <li><a href="#about" className="hover:text-[#cba158] transition">Catering Orders</a></li>
                 <li><a href="#about" className="hover:text-[#cba158] transition">Takeaway Counter</a></li>
@@ -111,7 +111,7 @@ export default function Footer({ onSubscribe }) {
             </div>
 
             {/* Newsletter Column (3 cols) */}
-            <div className="lg:col-span-3 space-y-3">
+            <div className="lg:col-span-3 space-y-2 sm:space-y-3">
               <h5 className="text-xs uppercase tracking-widest font-bold text-[#1c1a17]">
                 Stay Connected
               </h5>
@@ -119,7 +119,7 @@ export default function Footer({ onSubscribe }) {
                 Subscribe for weekend family banquet offers, festive menus, and special discounts.
               </p>
 
-              <form onSubmit={handleSubscribe} className="pt-2">
+              <form onSubmit={handleSubscribe} className="pt-1.5">
                 <div className="flex items-center rounded-xl bg-white border border-[#dfd9ce] p-1.5 focus-within:border-[#cba158] transition shadow-inner">
                   <input
                     type="email"
@@ -127,11 +127,11 @@ export default function Footer({ onSubscribe }) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@gmail.com"
-                    className="w-full bg-transparent px-3 py-2 text-xs sm:text-sm text-[#1c1a17] placeholder-[#9a958e] focus:outline-none"
+                    className="w-full bg-transparent px-2.5 py-1.5 text-xs sm:text-sm text-[#1c1a17] placeholder-[#9a958e] focus:outline-none min-w-0"
                   />
                   <button
                     type="submit"
-                    className="bg-[#1c1a17] hover:bg-[#cba158] text-white hover:text-[#0c0c0d] font-semibold text-xs uppercase tracking-wider px-3.5 py-2.5 rounded-lg transition"
+                    className="bg-[#1c1a17] hover:bg-[#cba158] text-white hover:text-[#0c0c0d] font-semibold text-[11px] sm:text-xs uppercase tracking-wider px-3 sm:px-3.5 py-2 rounded-lg transition flex-shrink-0"
                   >
                     {isSubscribed ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : "Join"}
                   </button>
@@ -142,15 +142,15 @@ export default function Footer({ onSubscribe }) {
           </div>
 
           {/* Sub-bar inside card */}
-          <div className="mt-10 pt-6 border-t border-[#e2dcd1] flex flex-col sm:flex-row items-center justify-between text-xs text-[#6e6860] gap-4">
+          <div className="mt-8 pt-5 border-t border-[#e2dcd1] flex flex-col sm:flex-row items-center justify-between text-[11px] sm:text-xs text-[#6e6860] gap-2.5 text-center sm:text-left">
             <p>© 2026 Mahalakshmi Spice Heritage Family Restaurant. All Rights Reserved.</p>
             <p className="hover:text-[#cba158] transition font-medium">contact@mahalakshmispiceheritage.com</p>
           </div>
         </div>
 
-        {/* Big Bold Bottom Typography Etched Watermark matching screenshot */}
-        <div className="mt-14 select-none text-center">
-          <h2 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-[9vw] font-bold tracking-tight text-white/[0.07] uppercase leading-none">
+        {/* Big Bold Bottom Typography Etched Watermark */}
+        <div className="mt-10 sm:mt-14 select-none text-center overflow-hidden">
+          <h2 className="font-serif text-3xl sm:text-6xl md:text-8xl lg:text-[9vw] font-bold tracking-tight text-white/[0.06] uppercase leading-none truncate max-w-full">
             MAHALAKSHMI SPICE HERITAGE
           </h2>
         </div>
