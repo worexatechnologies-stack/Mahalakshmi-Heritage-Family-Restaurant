@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import AboutHours from "@/components/AboutHours";
@@ -9,6 +9,9 @@ import Signatures from "@/components/Signatures";
 import ThreeDDishExperience from "@/components/ThreeDDishExperience";
 import RecipesSpecials from "@/components/RecipesSpecials";
 import DiningExperience from "@/components/DiningExperience";
+import CelebrationsCatering from "@/components/CelebrationsCatering";
+import WhyChooseUs from "@/components/WhyChooseUs";
+import FAQSection from "@/components/FAQSection";
 import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
 import ReservationModal from "@/components/ReservationModal";
@@ -16,11 +19,77 @@ import DishModal from "@/components/DishModal";
 import Toast from "@/components/Toast";
 import ThreeDBackgroundParticles from "@/components/ThreeDBackgroundParticles";
 
-export default function Home() {
+export default function Home({ initialSection }) {
   const [isReservationOpen, setIsReservationOpen] = useState(false);
   const [selectedDish, setSelectedDish] = useState(null);
   const [toastMessage, setToastMessage] = useState("");
   const [isToastVisible, setIsToastVisible] = useState(false);
+
+  useEffect(() => {
+    // 1. Smooth scroll if loaded at /contact, /about, /menu, etc.
+    const targetPath = (
+      initialSection ||
+      (typeof window !== "undefined" ? window.location.pathname.replace(/^\//, "").toLowerCase() : "")
+    );
+    if (targetPath) {
+      const targetEl = document.getElementById(targetPath);
+      if (targetEl) {
+        setTimeout(() => {
+          targetEl.scrollIntoView({ behavior: "smooth" });
+        }, 300);
+      }
+    }
+
+    // 2. Click interceptor to update URL to /section (without hash #) and smooth scroll
+    const handleAnchorClick = (e) => {
+      const anchor = e.target.closest("a");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href");
+      if (!href) return;
+
+      let sectionId = "";
+      let newPath = "";
+
+      if (href.startsWith("#")) {
+        sectionId = href.replace(/^#/, "");
+        newPath = "/" + sectionId;
+      } else if (
+        href.startsWith("/") &&
+        !href.startsWith("//") &&
+        !href.includes(".") &&
+        !href.startsWith("/api")
+      ) {
+        sectionId = href.replace(/^\//, "");
+        newPath = href;
+      }
+
+      if (sectionId) {
+        const targetEl = document.getElementById(sectionId);
+        if (targetEl) {
+          e.preventDefault();
+          window.history.pushState(null, "", newPath);
+          targetEl.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    };
+
+    // 3. Browser Back/Forward navigation support
+    const handlePopState = () => {
+      const sectionName = window.location.pathname.replace(/^\//, "").toLowerCase();
+      const targetEl = document.getElementById(sectionName || "home");
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+
+    document.addEventListener("click", handleAnchorClick);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      document.removeEventListener("click", handleAnchorClick);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [initialSection]);
 
   const showToast = (message) => {
     setToastMessage(message);
@@ -38,31 +107,40 @@ export default function Home() {
       {/* Navigation */}
       <Navbar onOpenReservation={() => setIsReservationOpen(true)} />
 
-      {/* Hero Section with Interactive 3D Gold Medallion */}
+      {/* 1. Hero Section with A Legacy of Authentic Flavours */}
       <Hero onOpenReservation={() => setIsReservationOpen(true)} />
 
-      {/* About & Hours Section */}
+      {/* 2. About Us - A Heritage Worth Savouring */}
       <AboutHours onOpenReservation={() => setIsReservationOpen(true)} />
 
-      {/* 4 Feature Badges */}
+      {/* 3. Restaurant Highlights - The Art of Authentic Cooking */}
       <FeatureBar />
 
-      {/* 8 Signatures Grid with 3D Tilt Cards */}
+      {/* 4. Dishes Crafted with Heritage & Care - Signatures Menu */}
       <Signatures onSelectDish={(dish) => setSelectedDish(dish)} />
 
-      {/* 3D Interactive Tasting Showcase */}
+      {/* 5. Interactive 3D Tasting Showcase */}
       <ThreeDDishExperience onSelectDish={(dish) => setSelectedDish(dish)} />
 
-      {/* Recipes & Kitchen Specials Search + Mosaic Grid */}
+      {/* 6. Mahalakshmi Kitchen Secrets - Heritage Recipes & Specials */}
       <RecipesSpecials onSelectDish={(dish) => setSelectedDish(dish)} />
 
-      {/* Dining Experience & Private Dining Hall */}
+      {/* 7. Where Tradition Meets Warmth - Dining Experience & Filmstrip Gallery */}
       <DiningExperience onOpenReservation={() => setIsReservationOpen(true)} />
 
-      {/* Loved By Our Guests Testimonials Carousel */}
+      {/* 8. Family Celebrations & Catering */}
+      <CelebrationsCatering onOpenReservation={() => setIsReservationOpen(true)} />
+
+      {/* 9. Why Choose Us? */}
+      <WhyChooseUs />
+
+      {/* 10. Frequently Asked Questions */}
+      <FAQSection />
+
+      {/* 11. Loved By Our Guests Testimonials */}
       <Testimonials onSelectDish={(dish) => setSelectedDish(dish)} />
 
-      {/* Floating White Card Footer & Huge Watermark */}
+      {/* 12. Footer */}
       <Footer onSubscribe={(msg) => showToast(msg)} />
 
       {/* Interactive Reservation Modal */}

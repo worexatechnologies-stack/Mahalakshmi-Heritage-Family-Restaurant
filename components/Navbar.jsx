@@ -18,12 +18,11 @@ export default function Navbar({ onOpenReservation }) {
   }, []);
 
   const navLinks = [
-    { name: "Home", href: "#hero" },
-    { name: "About", href: "#about" },
-    { name: "Menu", href: "#signatures" },
-    { name: "Recipes", href: "#recipes" },
-    { name: "Gallery", href: "#experience" },
-    { name: "Contact", href: "#footer" },
+    { name: "Home", href: "/home" },
+    { name: "About", href: "/about" },
+    { name: "Menu", href: "/menu" },
+    { name: "Gallery", href: "/gallery" },
+    { name: "Contact", href: "/contact" },
   ];
 
   return (
@@ -38,7 +37,7 @@ export default function Navbar({ onOpenReservation }) {
         <div className="flex items-center justify-between gap-2">
           
           {/* Logo */}
-          <Link href="#hero" className="flex items-center gap-2.5 sm:gap-3 group min-w-0">
+          <a href="/home" className="flex items-center gap-2.5 sm:gap-3 group min-w-0">
             <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-[#cba158]/70 bg-black flex-shrink-0 group-hover:border-[#cba158] transition">
               <Image
                 src="/logo.jpg"
@@ -51,13 +50,13 @@ export default function Navbar({ onOpenReservation }) {
             
             <div className="flex flex-col min-w-0">
               <span className="font-serif text-base sm:text-xl lg:text-2xl font-normal tracking-wide text-[#f4ede4] group-hover:text-[#cba158] transition duration-200 truncate">
-                Mahalakshmi <span className="font-serif italic text-[#cba158] font-normal">&</span> Heritage
+                Mahalakshmi
               </span>
               <span className="text-[8.5px] sm:text-[9.5px] uppercase tracking-widest text-neutral-400 group-hover:text-white transition truncate">
                 Family Restaurant
               </span>
             </div>
-          </Link>
+          </a>
 
           {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center space-x-7 lg:space-x-9">

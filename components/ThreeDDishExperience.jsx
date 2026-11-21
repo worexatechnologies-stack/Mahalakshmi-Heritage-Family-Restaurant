@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { signatureDishes } from "@/data/restaurantData";
-import { Rotate3d, Eye, Star } from "lucide-react";
+import { Eye, Star } from "lucide-react";
 import ThreeDTiltCard from "./ThreeDTiltCard";
 
 export default function ThreeDDishExperience({ onSelectDish }) {
@@ -21,9 +21,6 @@ export default function ThreeDDishExperience({ onSelectDish }) {
         
         {/* Section Heading */}
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 border border-[#cba158]/40 text-[#cba158] text-xs uppercase tracking-widest mb-3 shadow-lg">
-            <Rotate3d className="w-3.5 h-3.5" /> 3D Culinary Experience
-          </div>
           <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif text-[#f4ede4]">
             Interactive 3D Tasting Showcase
           </h2>

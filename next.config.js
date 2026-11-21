@@ -9,6 +9,14 @@ const nextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/:section(home|about|menu|gallery|contact|recipes|celebrations|why-us|faq)',
+        destination: '/',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
