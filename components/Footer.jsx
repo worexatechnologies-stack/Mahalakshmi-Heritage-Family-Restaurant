@@ -23,7 +23,9 @@ export default function Footer({ onSubscribe }) {
   };
 
   return (
-    <footer id="footer" className="relative pt-16 sm:pt-24 pb-8 sm:pb-12 overflow-hidden bg-[#0a0a0c]">
+    <footer id="contact" className="relative pt-16 sm:pt-24 pb-8 sm:pb-12 overflow-hidden bg-[#0a0a0c]">
+      {/* Anchor for backward compatibility */}
+      <div id="footer" className="absolute -top-24" />
       
       {/* Background Ambience Image */}
       <div className="absolute inset-0 z-0 opacity-20">
@@ -63,7 +65,7 @@ export default function Footer({ onSubscribe }) {
                 </div>
               </div>
               <p className="text-xs sm:text-sm text-[#4a4742] leading-relaxed max-w-sm">
-                Mahalakshmi Spice Heritage Family Restaurant is deeply dedicated to creating unforgettable culinary moments with authentic clay tandoor cooking and royal stone-ground spices.
+                Mahalakshmi Spice Heritage is a family restaurant dedicated to celebrating the richness of traditional Indian cuisine with authentic recipes, clay tandoor specialities, and warm hospitality.
               </p>
 
               {/* Social Icons */}
@@ -87,26 +89,26 @@ export default function Footer({ onSubscribe }) {
                 Quick Links
               </h5>
               <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-[#5a5650]">
-                <li><a href="#hero" className="hover:text-[#cba158] transition">Home</a></li>
-                <li><a href="#about" className="hover:text-[#cba158] transition">About Us</a></li>
-                <li><a href="#signatures" className="hover:text-[#cba158] transition">Royal Menu</a></li>
-                <li><a href="#recipes" className="hover:text-[#cba158] transition">Kitchen Specials</a></li>
-                <li><a href="#experience" className="hover:text-[#cba158] transition">Family Hall</a></li>
-                <li><a href="#footer" className="hover:text-[#cba158] transition">Contact</a></li>
+                <li><a href="/home" className="hover:text-[#cba158] transition">Home</a></li>
+                <li><a href="/about" className="hover:text-[#cba158] transition">About Us</a></li>
+                <li><a href="/menu" className="hover:text-[#cba158] transition">Signature Menu</a></li>
+                <li><a href="/recipes" className="hover:text-[#cba158] transition">Kitchen Secrets</a></li>
+                <li><a href="/gallery" className="hover:text-[#cba158] transition">Gallery</a></li>
+                <li><a href="/celebrations" className="hover:text-[#cba158] transition">Catering & Events</a></li>
               </ul>
             </div>
 
-            {/* Support Column (2 cols) */}
+            {/* Support / Discover Column (2 cols) */}
             <div className="lg:col-span-2 space-y-2 sm:space-y-3">
               <h5 className="text-xs uppercase tracking-widest font-bold text-[#1c1a17]">
-                Hospitality
+                Discover
               </h5>
               <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-[#5a5650]">
-                <li><a href="#experience" className="hover:text-[#cba158] transition">Family Banquets</a></li>
-                <li><a href="#about" className="hover:text-[#cba158] transition">Catering Orders</a></li>
-                <li><a href="#about" className="hover:text-[#cba158] transition">Takeaway Counter</a></li>
-                <li><a href="#footer" className="hover:text-[#cba158] transition">Privacy Policy</a></li>
-                <li><a href="#footer" className="hover:text-[#cba158] transition">Terms of Service</a></li>
+                <li><a href="/why-us" className="hover:text-[#cba158] transition">Why Choose Us</a></li>
+                <li><a href="/faq" className="hover:text-[#cba158] transition">FAQs</a></li>
+                <li><a href="/gallery" className="hover:text-[#cba158] transition">Dining Spaces</a></li>
+                <li><a href="/menu" className="hover:text-[#cba158] transition">Tandoor Specialities</a></li>
+                <li><a href="/contact" className="hover:text-[#cba158] transition">Contact</a></li>
               </ul>
             </div>
 
@@ -144,7 +146,14 @@ export default function Footer({ onSubscribe }) {
           {/* Sub-bar inside card */}
           <div className="mt-8 pt-5 border-t border-[#e2dcd1] flex flex-col sm:flex-row items-center justify-between text-[11px] sm:text-xs text-[#6e6860] gap-2.5 text-center sm:text-left">
             <p>© 2026 Mahalakshmi Spice Heritage Family Restaurant. All Rights Reserved.</p>
-            <p className="hover:text-[#cba158] transition font-medium">contact@mahalakshmispiceheritage.com</p>
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+              <p className="hover:text-[#cba158] transition font-medium">
+                <a href="tel:+919148278837">+91 91482 78837</a>
+              </p>
+              <p className="hover:text-[#cba158] transition font-medium">
+                <a href="mailto:mshfamilyrestaurant@gmail.com">mshfamilyrestaurant@gmail.com</a>
+              </p>
+            </div>
           </div>
         </div>
 

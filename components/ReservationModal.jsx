@@ -98,7 +98,7 @@ export default function ReservationModal({ isOpen, onClose, onBookingSuccess }) 
                     required
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="+91 98765 43210"
+                    placeholder="+91 91482 78837"
                     className="w-full bg-[#1e1e22] border border-[#2e2e32] rounded-lg px-3.5 py-2.5 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#cba158] transition"
                   />
                 </div>
