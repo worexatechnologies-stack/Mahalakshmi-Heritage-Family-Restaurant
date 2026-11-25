@@ -8,18 +8,36 @@ import { CheckCircle2 } from "lucide-react";
 export default function Footer({ onSubscribe }) {
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubscribe = (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault();
-    if (!email) return;
-    setIsSubscribed(true);
-    if (onSubscribe) {
-      onSubscribe(`Thank you for subscribing to Mahalakshmi Spice Heritage updates!`);
+    if (!email || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      const endpoint = process.env.NEXT_PUBLIC_PHP_MAIL_URL || "/api/send-mail";
+      await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "newsletter",
+          email: email,
+        }),
+      });
+    } catch (err) {
+      console.warn("Newsletter delivery note:", err);
+    } finally {
+      setIsSubmitting(false);
+      setIsSubscribed(true);
+      if (onSubscribe) {
+        onSubscribe(`Thank you for subscribing to Mahalakshmi Spice Heritage updates!`);
+      }
+      setTimeout(() => {
+        setEmail("");
+        setIsSubscribed(false);
+      }, 3500);
     }
-    setTimeout(() => {
-      setEmail("");
-      setIsSubscribed(false);
-    }, 3000);
   };
 
   return (
