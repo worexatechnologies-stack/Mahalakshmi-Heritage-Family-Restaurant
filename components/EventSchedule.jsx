@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Calendar, CheckCircle, ArrowRight, Sparkles, Users, Award } from "lucide-react";
+import { Clock, Calendar, CheckCircle, ArrowRight, Users, Award } from "lucide-react";
 import { sundayEvent } from "@/data/eventData";
 
 export default function EventSchedule({ onOpenReservation }) {
@@ -107,7 +107,7 @@ export default function EventSchedule({ onOpenReservation }) {
                 <ul className="space-y-2 mb-6">
                   {tier.features.map((feat, i) => (
                     <li key={i} className="flex items-start gap-2 text-xs text-neutral-300 font-light">
-                      <Sparkles className="w-3 h-3 text-[#cba158] flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="w-3 h-3 text-[#cba158] flex-shrink-0 mt-0.5" />
                       <span>{feat}</span>
                     </li>
                   ))}

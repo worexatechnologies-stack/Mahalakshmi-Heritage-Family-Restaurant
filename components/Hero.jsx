@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { CalendarCheck, UtensilsCrossed, Sparkles, Clock, MapPin, Gift, Flame } from "lucide-react";
+import { CalendarCheck, UtensilsCrossed, Calendar, Clock, MapPin, Gift, Flame } from "lucide-react";
 import { atmosphereImages } from "@/data/restaurantData";
 import { sundayEvent } from "@/data/eventData";
 
@@ -63,7 +63,7 @@ export default function Hero({ onOpenReservation }) {
           {/* Event Metadata Matrix Pills */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 mt-6 max-w-3xl">
             <div className="flex items-center gap-2 p-2 sm:p-2.5 rounded-xl bg-black/60 border border-white/10 backdrop-blur-sm">
-              <Sparkles className="w-4 h-4 text-[#cba158] flex-shrink-0" />
+              <Calendar className="w-4 h-4 text-[#cba158] flex-shrink-0" />
               <div className="min-w-0">
                 <span className="text-[9px] uppercase tracking-wider text-neutral-400 block font-light">Date</span>
                 <span className="text-xs text-[#f4ede4] font-medium truncate block">Sunday, Nov 29</span>

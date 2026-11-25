@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sparkles, Calendar, ArrowRight } from "lucide-react";
+import { Calendar, ArrowRight } from "lucide-react";
 import { sundayEvent } from "@/data/eventData";
 
 export default function EventCountdownBar({ onOpenReservation }) {
@@ -52,7 +52,6 @@ export default function EventCountdownBar({ onOpenReservation }) {
           </span>
 
           <span className="inline-flex items-center gap-1 font-semibold text-[10px] sm:text-xs text-[#cba158] uppercase tracking-wider whitespace-nowrap">
-            <Sparkles className="w-3 h-3 text-[#cba158] hidden xs:inline" />
             This Sunday (Nov 29):
           </span>
 

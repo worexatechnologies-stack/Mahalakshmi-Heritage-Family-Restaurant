@@ -132,7 +132,7 @@ export default function ReservationModal({ isOpen, onClose, onBookingSuccess }) 
                 {restaurantInfo.name}
               </h3>
               <p className="text-[10.5px] text-[#cba158] font-light mt-0.5">
-                ✨ Special Sunday (Nov 29): Free Chef&apos;s Welcome Platter with Table Booking
+                Special Sunday (Nov 29): Free Chef&apos;s Welcome Platter with Table Booking
               </p>
             </div>
 

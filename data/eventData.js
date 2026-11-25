@@ -64,7 +64,7 @@ export const sundayEvent = {
       title: "Family Treats & Royal Desserts",
       description: "Special welcome royal mocktails on arrival, dedicated family booths, and an indulgent dessert counter with hot gulab jamun and rabdi.",
       badge: "Hospitality",
-      icon: "Sparkles",
+      icon: "Award",
       image: "/dishes/paneer-tikka-stuffed.jpg"
     }
   ],

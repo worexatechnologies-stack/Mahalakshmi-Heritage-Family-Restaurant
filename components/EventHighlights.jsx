@@ -1,14 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { Flame, Utensils, Music, Sparkles, ArrowRight, ShieldCheck, Clock, Users } from "lucide-react";
+import { Flame, Utensils, Music, Award, ArrowRight, ShieldCheck, Clock, Users } from "lucide-react";
 import { sundayEvent } from "@/data/eventData";
 
 const iconMap = {
   Flame: Flame,
   Utensils: Utensils,
   Music: Music,
-  Sparkles: Sparkles
+  Award: Award
 };
 
 export default function EventHighlights({ onOpenReservation }) {
@@ -19,7 +19,7 @@ export default function EventHighlights({ onOpenReservation }) {
         {/* Section Heading */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
           <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-[#cba158] font-semibold bg-[#cba158]/10 px-3 py-1 rounded-full border border-[#cba158]/20 mb-3">
-            <Sparkles className="w-3 h-3 text-[#cba158]" />
+            <Flame className="w-3 h-3 text-[#cba158]" />
             What to Expect This Sunday
           </span>
           <h2 className="text-2xl sm:text-4xl lg:text-5xl font-serif text-[#f4ede4] tracking-tight">
@@ -34,7 +34,7 @@ export default function EventHighlights({ onOpenReservation }) {
         {/* 4 Bento Highlights Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 lg:gap-8 mb-10 sm:mb-14">
           {sundayEvent.highlights.map((item) => {
-            const IconComponent = iconMap[item.icon] || Sparkles;
+            const IconComponent = iconMap[item.icon] || Flame;
             return (
               <div
                 key={item.id}
