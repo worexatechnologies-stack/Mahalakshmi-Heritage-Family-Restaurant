@@ -245,7 +245,9 @@ export const recipesList = [
     prepTime: "30 mins",
     difficulty: "Mastery",
     secret: "Clay tandoor embers maintained at high heat for distinctive smoky juiciness.",
-    image: "/dishes/tandoori-murgh-roast.jpg"
+    image: "/dishes/tandoori-murgh-roast.jpg",
+    ingredients: ["Spiced Hung Yoghurt", "Kashmiri Chilli", "Clay Tandoor Roast", "Smoky Spices"],
+    flavorProfile: "Smoky, Tender & Rich"
   },
   {
     id: "paneer",
@@ -256,7 +258,9 @@ export const recipesList = [
     prepTime: "25 mins",
     difficulty: "Heritage",
     secret: "Fresh hand-churned paneer layered with slow-cooked spiced relish.",
-    image: "/dishes/paneer-tikka-stuffed.jpg"
+    image: "/dishes/paneer-tikka-stuffed.jpg",
+    ingredients: ["Hand-Churned Paneer", "Tomato-Onion Relish", "Mint Marinade", "Charcoal Oven"],
+    flavorProfile: "Mild Spices, Savory & Creamy"
   },
   {
     id: "tangdi",
@@ -267,7 +271,9 @@ export const recipesList = [
     prepTime: "35 mins",
     difficulty: "Artisanal",
     secret: "Slow roasting on iron skewers over glowing embers with aromatic spice infusion.",
-    image: "/dishes/royal-tandoori-tangdi.jpg"
+    image: "/dishes/royal-tandoori-tangdi.jpg",
+    ingredients: ["Choice Drumsticks", "Aromatic Marinade", "Iron Skewer Roast", "Glowing Embers"],
+    flavorProfile: "Juicy, Robust & Charred"
   },
   {
     id: "chilly",
@@ -278,7 +284,9 @@ export const recipesList = [
     prepTime: "20 mins",
     difficulty: "Signature",
     secret: "High-heat flash wok tossing with freshly chopped ginger, garlic, and fresh herbs.",
-    image: "/dishes/crispy-chicken-chilly.jpg"
+    image: "/dishes/crispy-chicken-chilly.jpg",
+    ingredients: ["Crispy Cutlets", "Fresh Spring Onion", "Crushed Ginger-Garlic", "Wok Tossed Sauce"],
+    flavorProfile: "Crisp, Zesty & Tangy"
   }
 ];
 
