@@ -13,22 +13,34 @@ export default function ThreeDBackgroundParticles() {
     let width = window.innerWidth;
     let height = window.innerHeight;
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(60, width / height, 1, 1000);
-    camera.position.z = 400;
+    let renderer;
+    let scene;
+    let camera;
+    let geometry;
+    let material;
+    let texture;
+    let animationId;
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: false,
-      powerPreference: "high-performance",
-    });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    try {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(60, width / height, 1, 1000);
+      camera.position.z = 400;
+
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: false,
+        powerPreference: "high-performance",
+      });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    } catch {
+      return;
+    }
 
     // Create 3D particles (embers / gold dust)
     const particleCount = 220;
-    const geometry = new THREE.BufferGeometry();
+    geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     const speeds = new Float32Array(particleCount);
 
@@ -53,9 +65,9 @@ export default function ThreeDBackgroundParticles() {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 16, 16);
 
-    const texture = new THREE.CanvasTexture(particleCanvas);
+    texture = new THREE.CanvasTexture(particleCanvas);
 
-    const material = new THREE.PointsMaterial({
+    material = new THREE.PointsMaterial({
       size: 4.5,
       map: texture,
       transparent: true,
@@ -90,7 +102,6 @@ export default function ThreeDBackgroundParticles() {
     window.addEventListener("resize", handleResize);
 
     // Animation Loop
-    let animationId;
     const animate = () => {
       animationId = requestAnimationFrame(animate);
 
@@ -116,13 +127,13 @@ export default function ThreeDBackgroundParticles() {
     animate();
 
     return () => {
-      cancelAnimationFrame(animationId);
+      if (animationId) cancelAnimationFrame(animationId);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("resize", handleResize);
-      geometry.dispose();
-      material.dispose();
-      texture.dispose();
-      renderer.dispose();
+      if (geometry) geometry.dispose();
+      if (material) material.dispose();
+      if (texture) texture.dispose();
+      if (renderer) renderer.dispose();
     };
   }, []);
 

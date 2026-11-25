@@ -29,68 +29,50 @@ export default function Home({ initialSection }) {
   const [isToastVisible, setIsToastVisible] = useState(false);
 
   useEffect(() => {
-    // 1. Smooth scroll if loaded at /contact, /about, /menu, etc.
-    const targetPath = (
-      initialSection ||
-      (typeof window !== "undefined" ? window.location.pathname.replace(/^\//, "").toLowerCase() : "")
-    );
-    if (targetPath) {
-      const targetEl = document.getElementById(targetPath);
+    // 1. Disable browser's erratic scroll restoration so the page doesn't jump on reload
+    if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
+    // 2. Determine target section
+    const currentHash = typeof window !== "undefined" ? window.location.hash.replace(/^#/, "").toLowerCase() : "";
+    const pathnameSection = typeof window !== "undefined" ? window.location.pathname.replace(/^\//, "").toLowerCase() : "";
+    
+    // Only scroll if there is an explicit section requested
+    const targetSection = initialSection || currentHash || (pathnameSection && pathnameSection !== "home" ? pathnameSection : null);
+
+    if (targetSection && targetSection !== "home") {
+      const targetEl = document.getElementById(targetSection);
       if (targetEl) {
         setTimeout(() => {
           targetEl.scrollIntoView({ behavior: "smooth" });
-        }, 300);
+        }, 200);
       }
+    } else {
+      // Always ensure the page starts cleanly at the top Hero & Announcement banner on load/refresh
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }
 
-    // 2. Click interceptor to update URL to /section (without hash #) and smooth scroll
+    // 3. Smooth scroll on anchor clicks without breaking page reloads
     const handleAnchorClick = (e) => {
       const anchor = e.target.closest("a");
       if (!anchor) return;
       const href = anchor.getAttribute("href");
       if (!href) return;
 
-      let sectionId = "";
-      let newPath = "";
-
       if (href.startsWith("#")) {
-        sectionId = href.replace(/^#/, "");
-        newPath = "/" + sectionId;
-      } else if (
-        href.startsWith("/") &&
-        !href.startsWith("//") &&
-        !href.includes(".") &&
-        !href.startsWith("/api")
-      ) {
-        sectionId = href.replace(/^\//, "");
-        newPath = href;
-      }
-
-      if (sectionId) {
+        const sectionId = href.replace(/^#/, "");
         const targetEl = document.getElementById(sectionId);
         if (targetEl) {
           e.preventDefault();
-          window.history.pushState(null, "", newPath);
           targetEl.scrollIntoView({ behavior: "smooth" });
         }
       }
     };
 
-    // 3. Browser Back/Forward navigation support
-    const handlePopState = () => {
-      const sectionName = window.location.pathname.replace(/^\//, "").toLowerCase();
-      const targetEl = document.getElementById(sectionName || "home");
-      if (targetEl) {
-        targetEl.scrollIntoView({ behavior: "smooth" });
-      }
-    };
-
     document.addEventListener("click", handleAnchorClick);
-    window.addEventListener("popstate", handlePopState);
-
     return () => {
       document.removeEventListener("click", handleAnchorClick);
-      window.removeEventListener("popstate", handlePopState);
     };
   }, [initialSection]);
 

@@ -71,10 +71,10 @@ export default function DiningExperience({ onOpenReservation }) {
     if (lightboxOpen) {
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "";
     };
   }, [lightboxOpen]);
 
@@ -254,24 +254,26 @@ export default function DiningExperience({ onOpenReservation }) {
             })}
           </div>
 
-          {/* Left & Right Clickable Overlay Zones on Side Cards for Desktop */}
+          {/* Left & Right Clickable Controls */}
           <button
             onClick={handlePrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 w-12 sm:w-20 h-full z-25 cursor-pointer bg-gradient-to-r from-[#08080a]/80 to-transparent flex items-center justify-start pl-2 sm:pl-4 opacity-0 hover:opacity-100 transition-opacity"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-40 cursor-pointer p-1 text-white opacity-85 hover:opacity-100 hover:scale-110 transition-all active:scale-95"
             title="Previous Photo"
+            aria-label="Previous Photo"
           >
-            <div className="w-10 h-10 rounded-full bg-black/80 border border-white/20 text-white flex items-center justify-center shadow-lg">
-              <ChevronLeft className="w-5 h-5 text-[#cba158]" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/85 backdrop-blur-md border border-[#cba158]/40 hover:border-[#cba158] text-[#cba158] flex items-center justify-center shadow-2xl">
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </button>
 
           <button
             onClick={handleNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 w-12 sm:w-20 h-full z-25 cursor-pointer bg-gradient-to-l from-[#08080a]/80 to-transparent flex items-center justify-end pr-2 sm:pl-4 opacity-0 hover:opacity-100 transition-opacity"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-40 cursor-pointer p-1 text-white opacity-85 hover:opacity-100 hover:scale-110 transition-all active:scale-95"
             title="Next Photo"
+            aria-label="Next Photo"
           >
-            <div className="w-10 h-10 rounded-full bg-black/80 border border-white/20 text-white flex items-center justify-center shadow-lg">
-              <ChevronRight className="w-5 h-5 text-[#cba158]" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/85 backdrop-blur-md border border-[#cba158]/40 hover:border-[#cba158] text-[#cba158] flex items-center justify-center shadow-2xl">
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </button>
         </div>
