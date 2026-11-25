@@ -65,12 +65,12 @@ export default function Footer({ onSubscribe }) {
             {/* Left Column: Brand & Socials (5 cols) */}
             <div className="lg:col-span-5 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden border border-[#cba158]/60 bg-black flex-shrink-0 shadow-sm">
+                <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-[#cba158]/70 ring-1 ring-[#cba158]/30 bg-[#0e0e11] flex-shrink-0 shadow-md">
                   <Image
-                    src="/logo.jpg"
+                    src="/logo-centered.png"
                     alt="Mahalakshmi Spice Heritage"
                     fill
-                    className="object-contain p-1"
+                    className="object-cover"
                   />
                 </div>
                 <div>

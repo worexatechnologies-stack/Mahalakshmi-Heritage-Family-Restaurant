@@ -38,22 +38,24 @@ export default function Navbar({ onOpenReservation }) {
         <div className="flex items-center justify-between gap-2">
           
           {/* Logo */}
-          <a href="/home" className="flex items-center gap-2.5 sm:gap-3 group min-w-0">
-            <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-[#cba158]/70 bg-black flex-shrink-0 group-hover:border-[#cba158] transition">
+          <a href="/home" className="flex items-center gap-3 group min-w-0 select-none">
+            {/* Centered Circular Royal Crest */}
+            <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-[#cba158]/70 ring-1 ring-[#cba158]/30 bg-[#0e0e11] flex-shrink-0 group-hover:border-[#cba158] group-hover:ring-[#cba158]/60 transition-all duration-300 shadow-md shadow-black/80">
               <Image
-                src="/logo.jpg"
+                src="/logo-centered.png"
                 alt="Mahalakshmi Spice Heritage Logo"
                 fill
-                className="object-contain p-0.5"
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
                 priority
               />
             </div>
             
-            <div className="flex flex-col min-w-0">
-              <span className="font-serif text-base sm:text-xl lg:text-2xl font-normal tracking-wide text-[#f4ede4] group-hover:text-[#cba158] transition duration-200 truncate">
+            {/* Perfectly Aligned Typographic Hierarchy */}
+            <div className="flex flex-col justify-center min-w-0">
+              <span className="font-serif text-base sm:text-lg lg:text-xl font-normal tracking-[0.08em] uppercase text-[#f4ede4] group-hover:text-[#cba158] transition-colors duration-200 leading-none">
                 Mahalakshmi
               </span>
-              <span className="text-[8.5px] sm:text-[9.5px] uppercase tracking-widest text-neutral-400 group-hover:text-white transition truncate">
+              <span className="text-[8.5px] sm:text-[9.5px] uppercase tracking-[0.24em] text-[#cba158]/85 group-hover:text-white transition-colors duration-200 font-medium leading-none mt-1">
                 Family Restaurant
               </span>
             </div>

@@ -112,12 +112,12 @@ export default function ReservationModal({ isOpen, onClose, onBookingSuccess }) 
           <>
             {/* Header: Royal & Compact */}
             <div className="text-center mb-3">
-              <div className="relative w-11 h-11 mx-auto mb-1.5 rounded-xl overflow-hidden border border-[#cba158]/60 shadow-[0_0_15px_rgba(203,161,88,0.25)] bg-black/90 p-0.5">
+              <div className="relative w-11 h-11 mx-auto mb-1.5 rounded-full overflow-hidden border border-[#cba158]/70 ring-1 ring-[#cba158]/30 shadow-[0_0_15px_rgba(203,161,88,0.25)] bg-[#0e0e11]">
                 <Image
-                  src="/logo.jpg"
+                  src="/logo-centered.png"
                   alt="Mahalakshmi Spice Heritage"
                   fill
-                  className="object-contain p-0.5"
+                  className="object-cover"
                 />
               </div>
 
