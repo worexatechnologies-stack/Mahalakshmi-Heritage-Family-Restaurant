@@ -18,6 +18,7 @@ export default function Navbar({ onOpenReservation }) {
   }, []);
 
   const navLinks = [
+    { name: "Sunday Event", href: "#sunday-event", isSpecial: true },
     { name: "Home", href: "/home" },
     { name: "About", href: "/about" },
     { name: "Menu", href: "/menu" },
@@ -27,7 +28,7 @@ export default function Navbar({ onOpenReservation }) {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-9 sm:top-10 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
           ? "bg-[#0c0c0d]/95 backdrop-blur-md border-b border-white/10 py-3 sm:py-3.5 shadow-2xl"
           : "bg-gradient-to-b from-black/90 via-black/45 to-transparent py-4 sm:py-6"
@@ -59,12 +60,16 @@ export default function Navbar({ onOpenReservation }) {
           </a>
 
           {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center space-x-7 lg:space-x-9">
+          <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
             {navLinks.map((link) => (
               <a
                 key={link.name}
                 href={link.href}
-                className="text-xs lg:text-sm font-normal text-neutral-300 hover:text-[#cba158] transition-colors tracking-wide"
+                className={`text-xs lg:text-sm font-normal tracking-wide transition-all ${
+                  link.isSpecial
+                    ? "px-3 py-1 rounded-full bg-[#cba158]/15 text-[#cba158] border border-[#cba158]/40 font-medium hover:bg-[#cba158] hover:text-[#0c0c0d] shadow-sm shadow-[#cba158]/10"
+                    : "text-neutral-300 hover:text-[#cba158]"
+                }`}
               >
                 {link.name}
               </a>

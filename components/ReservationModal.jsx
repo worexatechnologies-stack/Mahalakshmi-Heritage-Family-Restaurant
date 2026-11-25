@@ -23,7 +23,7 @@ export default function ReservationModal({ isOpen, onClose, onBookingSuccess }) 
     name: "",
     email: "",
     phone: "",
-    date: new Date().toISOString().split("T")[0],
+    date: "2026-11-29",
     time: "19:30",
     guests: "4 Guests (Family)",
     notes: ""
@@ -124,13 +124,16 @@ export default function ReservationModal({ isOpen, onClose, onBookingSuccess }) 
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#cba158]/10 border border-[#cba158]/30 mb-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#cba158] animate-pulse" />
                 <span className="text-[10px] uppercase tracking-widest text-[#cba158] font-bold">
-                  Table & Banquet Reservation
+                  Sunday Event &amp; Table Reservation
                 </span>
               </div>
               
               <h3 className="text-lg sm:text-xl font-serif text-[#f4ede4] leading-tight">
                 {restaurantInfo.name}
               </h3>
+              <p className="text-[10.5px] text-[#cba158] font-light mt-0.5">
+                ✨ Special Sunday (Nov 29): Free Chef&apos;s Welcome Platter with Table Booking
+              </p>
             </div>
 
             {/* Non-scrolling Satisfying Form */}
@@ -240,13 +243,13 @@ export default function ReservationModal({ isOpen, onClose, onBookingSuccess }) 
                       onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                       className="w-full bg-[#1b1b20] border border-white/10 rounded-xl pl-9 pr-8 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-[#cba158] focus:ring-1 focus:ring-[#cba158]/40 hover:border-white/20 transition-all appearance-none cursor-pointer shadow-inner"
                     >
-                      <option value="12:30">12:30 PM (Lunch)</option>
-                      <option value="13:30">01:30 PM (Lunch)</option>
-                      <option value="14:30">02:30 PM (Lunch)</option>
-                      <option value="19:00">07:00 PM (Dinner)</option>
-                      <option value="19:30">07:30 PM (Dinner)</option>
-                      <option value="20:30">08:30 PM (Dinner)</option>
-                      <option value="21:30">09:30 PM (Dinner)</option>
+                      <option value="12:30">12:30 PM (Sunday Lunch Gala)</option>
+                      <option value="13:30">01:30 PM (Sunday Lunch Gala)</option>
+                      <option value="14:30">02:30 PM (Sunday Lunch Gala)</option>
+                      <option value="19:00">07:00 PM (Dinner & Live Music)</option>
+                      <option value="19:30">07:30 PM (Dinner & Live Music)</option>
+                      <option value="20:30">08:30 PM (Dinner & Live Music)</option>
+                      <option value="21:30">09:30 PM (Dinner & Live Music)</option>
                     </select>
                     <ChevronDown className="w-4 h-4 absolute right-3 text-neutral-400 pointer-events-none group-focus-within:text-[#cba158] transition-colors" />
                   </div>

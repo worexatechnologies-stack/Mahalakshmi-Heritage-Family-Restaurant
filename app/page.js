@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
+import EventCountdownBar from "@/components/EventCountdownBar";
 import Hero from "@/components/Hero";
+import EventHighlights from "@/components/EventHighlights";
+import EventSchedule from "@/components/EventSchedule";
 import AboutHours from "@/components/AboutHours";
 import FeatureBar from "@/components/FeatureBar";
 import Signatures from "@/components/Signatures";
@@ -104,13 +107,22 @@ export default function Home({ initialSection }) {
       {/* 3D Interactive Floating Gold Particle & Ember Field */}
       <ThreeDBackgroundParticles />
 
+      {/* Top Real-time Event Countdown & Urgent Announcement Bar */}
+      <EventCountdownBar onOpenReservation={() => setIsReservationOpen(true)} />
+
       {/* Navigation */}
       <Navbar onOpenReservation={() => setIsReservationOpen(true)} />
 
-      {/* 1. Hero Section with A Legacy of Authentic Flavours */}
+      {/* 1. Grand Sunday Event Hero Showcase */}
       <Hero onOpenReservation={() => setIsReservationOpen(true)} />
 
-      {/* 2. About Us - A Heritage Worth Savouring */}
+      {/* 2. Sunday Event Highlights & Festival Features */}
+      <EventHighlights onOpenReservation={() => setIsReservationOpen(true)} />
+
+      {/* 3. Sunday Event Program Schedule & Table Options */}
+      <EventSchedule onOpenReservation={() => setIsReservationOpen(true)} />
+
+      {/* 4. About Us - A Heritage Worth Savouring */}
       <AboutHours onOpenReservation={() => setIsReservationOpen(true)} />
 
       {/* 3. Restaurant Highlights - The Art of Authentic Cooking */}
