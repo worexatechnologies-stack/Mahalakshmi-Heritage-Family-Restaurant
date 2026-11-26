@@ -14,6 +14,7 @@
     background-color: #0c0c0d;
     overflow-x: hidden;
     max-width: 100vw;
+    -webkit-overflow-scrolling: touch;
   }
 
   body {
@@ -25,10 +26,17 @@
     width: 100%;
     position: relative;
     -webkit-text-size-adjust: 100%;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   ::selection {
+    background-color: #cba158;
+    color: #0c0c0d;
+  }
+
+  ::-moz-selection {
     background-color: #cba158;
     color: #0c0c0d;
   }
@@ -84,3 +92,25 @@
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
+
+/* Smooth continuous right-to-left sliding ticker */
+@keyframes slideLeft {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-slide-left {
+  display: flex;
+  width: max-content;
+  animation: slideLeft 30s linear infinite;
+  will-change: transform;
+}
+
+.animate-slide-left:hover {
+  animation-play-state: paused;
+}
+

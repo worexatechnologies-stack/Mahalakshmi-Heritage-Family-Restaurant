@@ -2,42 +2,25 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { atmosphereImages } from "@/data/restaurantData";
 import { CheckCircle2 } from "lucide-react";
 
 export default function Footer({ onSubscribe }) {
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubscribe = async (e) => {
+  const handleSubscribe = (e) => {
     e.preventDefault();
-    if (!email || isSubmitting) return;
-
-    setIsSubmitting(true);
-    try {
-      const endpoint = process.env.NEXT_PUBLIC_PHP_MAIL_URL || "/api/send-mail";
-      await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "newsletter",
-          email: email,
-        }),
-      });
-    } catch (err) {
-      console.warn("Newsletter delivery note:", err);
-    } finally {
-      setIsSubmitting(false);
-      setIsSubscribed(true);
-      if (onSubscribe) {
-        onSubscribe(`Thank you for subscribing to Mahalakshmi Spice Heritage updates!`);
-      }
-      setTimeout(() => {
-        setEmail("");
-        setIsSubscribed(false);
-      }, 3500);
+    if (!email) return;
+    setIsSubscribed(true);
+    if (onSubscribe) {
+      onSubscribe(`Thank you for subscribing to Mahalakshmi Spice Heritage updates!`);
     }
+    setTimeout(() => {
+      setEmail("");
+      setIsSubscribed(false);
+    }, 3000);
   };
 
   return (
@@ -58,16 +41,16 @@ export default function Footer({ onSubscribe }) {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Floating White / Light Card Container matching screenshot */}
+        {/* Floating White / Light Card Container */}
         <div className="bg-[#f7f4ee] text-[#1c1a17] rounded-2xl sm:rounded-3xl p-5 sm:p-10 lg:p-14 shadow-2xl border border-white/40">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12">
             
             {/* Left Column: Brand & Socials (5 cols) */}
             <div className="lg:col-span-5 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-[#cba158]/70 ring-1 ring-[#cba158]/30 bg-[#0e0e11] flex-shrink-0 shadow-md">
+                <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-[#cba158]/80 bg-[#101114] flex-shrink-0 shadow-sm">
                   <Image
-                    src="/logo-centered.png"
+                    src="/logo.png"
                     alt="Mahalakshmi Spice Heritage"
                     fill
                     className="object-cover"
@@ -86,77 +69,77 @@ export default function Footer({ onSubscribe }) {
                 Mahalakshmi Spice Heritage is a family restaurant dedicated to celebrating the richness of traditional Indian cuisine with authentic recipes, clay tandoor specialities, and warm hospitality.
               </p>
 
-              {/* Social Icons */}
-              <div className="flex items-center space-x-2.5 pt-1">
-                {["Instagram", "Facebook", "YouTube", "WhatsApp"].map((social) => (
-                  <a
-                    key={social}
-                    href={`#${social.toLowerCase()}`}
-                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#ebe5db] hover:bg-[#cba158] hover:text-white text-[#2a2825] flex items-center justify-center text-xs font-semibold transition"
-                    title={social}
-                  >
-                    {social[0]}
-                  </a>
-                ))}
+              {/* Contact Button */}
+              <div className="pt-2">
+                <Link
+                  href="/contact"
+                  data-page="true"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1c1a17] hover:bg-[#cba158] text-[#f4ede4] hover:text-[#0c0c0d] font-mono text-xs uppercase tracking-wider font-semibold transition-all shadow-sm active:scale-95 group/btn"
+                >
+                  <span>Contact Us</span>
+                  <span className="text-[#cba158] group-hover/btn:text-[#0c0c0d] group-hover/btn:translate-x-1 transition-transform">&rarr;</span>
+                </Link>
               </div>
             </div>
 
-            {/* Quick Links Column (2 cols) */}
-            <div className="lg:col-span-2 space-y-2 sm:space-y-3">
+            {/* Quick Links Column (3 cols) */}
+            <div className="lg:col-span-3 space-y-2 sm:space-y-3">
               <h5 className="text-xs uppercase tracking-widest font-bold text-[#1c1a17]">
                 Quick Links
               </h5>
               <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-[#5a5650]">
-                <li><a href="/home" className="hover:text-[#cba158] transition">Home</a></li>
-                <li><a href="/about" className="hover:text-[#cba158] transition">About Us</a></li>
-                <li><a href="/menu" className="hover:text-[#cba158] transition">Signature Menu</a></li>
-                <li><a href="/recipes" className="hover:text-[#cba158] transition">Kitchen Secrets</a></li>
-                <li><a href="/gallery" className="hover:text-[#cba158] transition">Gallery</a></li>
-                <li><a href="/celebrations" className="hover:text-[#cba158] transition">Catering & Events</a></li>
+                <li><a href="#home" className="hover:text-[#cba158] transition">Home</a></li>
+                <li><a href="#event" className="hover:text-[#cba158] transition font-medium text-[#cba158]">Sunday Gala Event</a></li>
+                <li><a href="#gallery" className="hover:text-[#cba158] transition">A Glimpse of Our World</a></li>
+                <li><a href="#videos" className="hover:text-[#cba158] transition">Event Reels &amp; Videos</a></li>
+                <li>
+                  <Link
+                    href="/contact"
+                    data-page="true"
+                    className="hover:text-[#cba158] transition flex items-center justify-between group/link font-medium text-[#1c1a17]"
+                  >
+                    <span>Contact Page</span>
+                    <span className="text-[9px] bg-[#cba158]/20 group-hover/link:bg-[#cba158] group-hover/link:text-[#0c0c0d] text-[#cba158] px-1.5 py-0.5 rounded font-mono uppercase font-bold tracking-wider">
+                      PAGE
+                    </span>
+                  </Link>
+                </li>
               </ul>
             </div>
 
-            {/* Support / Discover Column (2 cols) */}
-            <div className="lg:col-span-2 space-y-2 sm:space-y-3">
+            {/* Discover Dining Spaces Column (4 cols) */}
+            <div className="lg:col-span-4 space-y-2 sm:space-y-3">
               <h5 className="text-xs uppercase tracking-widest font-bold text-[#1c1a17]">
-                Discover
+                Dining Spaces
               </h5>
               <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-[#5a5650]">
-                <li><a href="/why-us" className="hover:text-[#cba158] transition">Why Choose Us</a></li>
-                <li><a href="/faq" className="hover:text-[#cba158] transition">FAQs</a></li>
-                <li><a href="/gallery" className="hover:text-[#cba158] transition">Dining Spaces</a></li>
-                <li><a href="/menu" className="hover:text-[#cba158] transition">Tandoor Specialities</a></li>
-                <li><a href="/contact" className="hover:text-[#cba158] transition">Contact</a></li>
+                <li><a href="#gallery" className="hover:text-[#cba158] transition">Executive AC Dining Hall</a></li>
+                <li><a href="#gallery" className="hover:text-[#cba158] transition">Palm Grove Promenade &amp; Walkway</a></li>
+                <li><a href="#gallery" className="hover:text-[#cba158] transition">Private Gazebos &amp; Cabanas</a></li>
+                <li><a href="#gallery" className="hover:text-[#cba158] transition">Iconic Highway Landmark</a></li>
               </ul>
-            </div>
 
-            {/* Newsletter Column (3 cols) */}
-            <div className="lg:col-span-3 space-y-2 sm:space-y-3">
-              <h5 className="text-xs uppercase tracking-widest font-bold text-[#1c1a17]">
-                Stay Connected
-              </h5>
-              <p className="text-xs text-[#5a5650] leading-relaxed">
-                Subscribe for weekend family banquet offers, festive menus, and special discounts.
-              </p>
-
-              <form onSubmit={handleSubscribe} className="pt-1.5">
-                <div className="flex items-center rounded-xl bg-white border border-[#dfd9ce] p-1.5 focus-within:border-[#cba158] transition shadow-inner">
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@gmail.com"
-                    className="w-full bg-transparent px-2.5 py-1.5 text-xs sm:text-sm text-[#1c1a17] placeholder-[#9a958e] focus:outline-none min-w-0"
-                  />
-                  <button
-                    type="submit"
-                    className="bg-[#1c1a17] hover:bg-[#cba158] text-white hover:text-[#0c0c0d] font-semibold text-[11px] sm:text-xs uppercase tracking-wider px-3 sm:px-3.5 py-2 rounded-lg transition flex-shrink-0"
-                  >
-                    {isSubscribed ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : "Join"}
-                  </button>
-                </div>
-              </form>
+              {/* Quick newsletter subscribe */}
+              <div className="pt-2">
+                <form onSubmit={handleSubscribe}>
+                  <div className="flex items-center rounded-xl bg-white border border-[#dfd9ce] p-1.5 focus-within:border-[#cba158] transition shadow-inner">
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="name@gmail.com"
+                      className="w-full bg-transparent px-2.5 py-1.5 text-xs sm:text-sm text-[#1c1a17] placeholder-[#9a958e] focus:outline-none min-w-0"
+                    />
+                    <button
+                      type="submit"
+                      className="bg-[#1c1a17] hover:bg-[#cba158] text-white hover:text-[#0c0c0d] font-semibold text-[11px] sm:text-xs uppercase tracking-wider px-3 sm:px-3.5 py-2 rounded-lg transition flex-shrink-0"
+                    >
+                      {isSubscribed ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : "Join"}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
 
           </div>
@@ -165,9 +148,18 @@ export default function Footer({ onSubscribe }) {
           <div className="mt-8 pt-5 border-t border-[#e2dcd1] flex flex-col sm:flex-row items-center justify-between text-[11px] sm:text-xs text-[#6e6860] gap-2.5 text-center sm:text-left">
             <p>© 2026 Mahalakshmi Spice Heritage Family Restaurant. All Rights Reserved.</p>
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+              <Link
+                href="/contact"
+                data-page="true"
+                className="hover:text-[#cba158] transition font-medium text-[#1c1a17] underline underline-offset-4 decoration-[#cba158]/40"
+              >
+                Contact &amp; Location
+              </Link>
+              <span className="text-neutral-400">&bull;</span>
               <p className="hover:text-[#cba158] transition font-medium">
                 <a href="tel:+919148278837">+91 91482 78837</a>
               </p>
+              <span className="text-neutral-400">&bull;</span>
               <p className="hover:text-[#cba158] transition font-medium">
                 <a href="mailto:mshfamilyrestaurant@gmail.com">mshfamilyrestaurant@gmail.com</a>
               </p>
@@ -175,11 +167,63 @@ export default function Footer({ onSubscribe }) {
           </div>
         </div>
 
-        {/* Big Bold Bottom Typography Etched Watermark */}
-        <div className="mt-10 sm:mt-14 select-none text-center overflow-hidden">
-          <h2 className="font-serif text-3xl sm:text-6xl md:text-8xl lg:text-[9vw] font-bold tracking-tight text-white/[0.06] uppercase leading-none truncate max-w-full">
-            MAHALAKSHMI SPICE HERITAGE
-          </h2>
+        {/* Big Bold Bottom Typography Etched Watermark (Static Location + Ambient Gold Shimmer Animation) */}
+        <div className="mt-8 sm:mt-12 w-full text-center overflow-visible select-none pointer-events-auto group">
+          <h2 className="sr-only">MAHALAKSHMI SPICE HERITAGE</h2>
+          <svg
+            viewBox="0 0 1480 100"
+            className="w-full h-auto max-w-full mx-auto block overflow-visible transition-all duration-700 ease-out group-hover:scale-[1.01]"
+            aria-hidden="true"
+          >
+            <defs>
+              {/* Continuous Golden Shimmer Sheen Wave Animation */}
+              <linearGradient id="footerHeritageShimmer" x1="-100%" y1="0%" x2="200%" y2="0%">
+                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.05" />
+                <stop offset="30%" stopColor="#ffffff" stopOpacity="0.08" />
+                <stop offset="48%" stopColor="#cba158" stopOpacity="0.65" />
+                <stop offset="52%" stopColor="#fdf0cd" stopOpacity="0.85" />
+                <stop offset="56%" stopColor="#cba158" stopOpacity="0.65" />
+                <stop offset="70%" stopColor="#ffffff" stopOpacity="0.08" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
+                <animate
+                  attributeName="x1"
+                  from="-100%"
+                  to="100%"
+                  dur="6s"
+                  repeatCount="indefinite"
+                />
+                <animate
+                  attributeName="x2"
+                  from="0%"
+                  to="200%"
+                  dur="6s"
+                  repeatCount="indefinite"
+                />
+              </linearGradient>
+
+              {/* Subtle Gold Ambient Glow Filter */}
+              <filter id="goldGleam" x="-10%" y="-10%" width="120%" height="120%">
+                <feGaussianBlur stdDeviation="2.5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+
+            <text
+              x="50%"
+              y="68%"
+              textAnchor="middle"
+              fill="url(#footerHeritageShimmer)"
+              filter="url(#goldGleam)"
+              className="font-serif font-black uppercase tracking-[0.08em] transition-all duration-500 group-hover:drop-shadow-[0_0_25px_rgba(203,161,88,0.35)]"
+              style={{
+                fontFamily: "'Cinzel', 'Playfair Display', Georgia, serif",
+                fontSize: "72px",
+                fontWeight: 900,
+              }}
+            >
+              MAHALAKSHMI SPICE HERITAGE
+            </text>
+          </svg>
         </div>
 
       </div>

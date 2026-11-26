@@ -12,14 +12,18 @@ import { galleryImages } from "@/data/restaurantData";
 
 export default function DiningExperience({ onOpenReservation }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   // Lightbox state
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
+  // Track previous offsets to eliminate wrap-around animation glitch
+  const prevOffsetsRef = useRef({});
+
   // Touch swipe support
   const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
+  const touchStartY = useRef(0);
 
   const total = galleryImages.length;
 
@@ -31,15 +35,38 @@ export default function DiningExperience({ onOpenReservation }) {
     setCurrentIndex((prev) => (prev + 1) % total);
   }, [total]);
 
+  // Smooth auto-advancing slideshow timer (changes one by one smoothly)
+  useEffect(() => {
+    if (isPaused || lightboxOpen) return;
+
+    const timer = setInterval(() => {
+      handleNext();
+    }, 4500);
+
+    return () => clearInterval(timer);
+  }, [isPaused, lightboxOpen, handleNext]);
+
+  // Update previous offsets ref after render
+  useEffect(() => {
+    const nextOffsets = {};
+    galleryImages.forEach((_, idx) => {
+      let offset = idx - currentIndex;
+      while (offset > 2) offset -= total;
+      while (offset < -2) offset += total;
+      nextOffsets[idx] = offset;
+    });
+    prevOffsetsRef.current = nextOffsets;
+  }, [currentIndex, total]);
+
   // Lightbox handlers
   const openLightbox = (index) => {
     setLightboxIndex(index);
     setLightboxOpen(true);
   };
 
-  const closeLightbox = () => {
+  const closeLightbox = useCallback(() => {
     setLightboxOpen(false);
-  };
+  }, []);
 
   const nextLightboxImage = useCallback(() => {
     setLightboxIndex((prev) => (prev + 1) % total);
@@ -52,6 +79,8 @@ export default function DiningExperience({ onOpenReservation }) {
   // Keyboard navigation for carousel and lightbox
   useEffect(() => {
     const handleKeyDown = (e) => {
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target?.tagName)) return;
+
       if (lightboxOpen) {
         if (e.key === "Escape") closeLightbox();
         else if (e.key === "ArrowRight") nextLightboxImage();
@@ -64,36 +93,43 @@ export default function DiningExperience({ onOpenReservation }) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [lightboxOpen, nextLightboxImage, prevLightboxImage, handleNext, handlePrev]);
+  }, [lightboxOpen, nextLightboxImage, prevLightboxImage, handleNext, handlePrev, closeLightbox]);
 
   // Lock body scroll when lightbox is open
   useEffect(() => {
     if (lightboxOpen) {
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflow = "auto";
     }
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = "auto";
     };
   }, [lightboxOpen]);
 
   // Touch handlers
   const handleTouchStart = (e) => {
+    setIsPaused(true);
     touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
   };
 
-  const handleTouchMove = (e) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
+  const handleTouchEnd = (e) => {
+    const diffX = touchStartX.current - e.changedTouches[0].clientX;
+    const diffY = touchStartY.current - e.changedTouches[0].clientY;
 
-  const handleTouchEnd = () => {
-    const diff = touchStartX.current - touchEndX.current;
-    if (diff > 40) {
-      handleNext();
-    } else if (diff < -40) {
-      handlePrev();
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+      if (diffX > 0) {
+        handleNext();
+      } else {
+        handlePrev();
+      }
     }
+
+    // Resume auto-slide after brief delay
+    setTimeout(() => {
+      setIsPaused(false);
+    }, 1500);
   };
 
   const currentLightbox = galleryImages[lightboxIndex];
@@ -101,9 +137,11 @@ export default function DiningExperience({ onOpenReservation }) {
   return (
     <section
       id="gallery"
-      className="py-18 sm:py-24 lg:py-32 bg-[#08080a] relative overflow-hidden select-none border-t border-white/5"
+      className="py-18 sm:py-24 lg:py-32 bg-[#08080a] relative overflow-hidden border-t border-white/5"
     >
-      {/* Anchor for Navbar link */}
+      {/* Anchors for navigation links */}
+      <div id="about" className="absolute -top-28" />
+      <div id="menu" className="absolute -top-28" />
       <div id="experience" className="absolute -top-24" />
 
       {/* Subtle background ambient glow */}
@@ -117,37 +155,44 @@ export default function DiningExperience({ onOpenReservation }) {
             A Glimpse of <span className="text-[#cba158]">Our World</span>
           </h2>
 
-          <p className="mt-3 text-xs sm:text-sm lg:text-base text-neutral-400 font-light max-w-xl mx-auto leading-relaxed">
+          <p className="mt-3 text-xs sm:text-sm lg:text-base text-neutral-400 font-light max-w-xl mx-auto leading-relaxed select-text">
             Explore our reception &amp; dining hall, open-air palm garden walkway, cozy private gazebos, and climate-controlled family dining.
           </p>
         </div>
 
-        {/* ===================== SMOOTH HORIZONTAL FILMSTRIP CAROUSEL ===================== */}
+        {/* ===================== SMOOTH 3D COVERFLOW SLIDESHOW ===================== */}
         <div
           className="relative w-full overflow-hidden py-4"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
           onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          {/* Slider Viewport */}
+          {/* Slider Viewport Stage */}
           <div className="relative flex items-center justify-center h-[360px] sm:h-[440px] lg:h-[500px]">
             {galleryImages.map((space, idx) => {
               // Calculate relative position (-2, -1, 0, 1, 2)
               let offset = idx - currentIndex;
-              if (offset > 2) offset -= total;
-              if (offset < -2) offset += total;
+              while (offset > 2) offset -= total;
+              while (offset < -2) offset += total;
 
               const isCenter = offset === 0;
               const isLeft = offset === -1;
               const isRight = offset === 1;
-              const isFarLeft = offset === -2;
-              const isFarRight = offset === 2;
+              const isFarLeft = offset <= -2;
+              const isFarRight = offset >= 2;
+
+              // Check if card wrapped around boundary between -2 and +2
+              const prevOffset = prevOffsetsRef.current[idx];
+              const isWrapping =
+                prevOffset !== undefined && Math.abs(offset - prevOffset) > 2;
 
               let translateX = 0;
               let scale = 1;
               let opacity = 0;
               let zIndex = 10;
               let pointerEvents = "pointer-events-none";
+              let visibility = "visible";
 
               if (isCenter) {
                 translateX = 0;
@@ -155,29 +200,39 @@ export default function DiningExperience({ onOpenReservation }) {
                 opacity = 1;
                 zIndex = 30;
                 pointerEvents = "pointer-events-auto";
+                visibility = "visible";
               } else if (isLeft) {
                 translateX = -75;
                 scale = 0.88;
                 opacity = 0.55;
                 zIndex = 20;
                 pointerEvents = "pointer-events-auto";
+                visibility = "visible";
               } else if (isRight) {
                 translateX = 75;
                 scale = 0.88;
                 opacity = 0.55;
                 zIndex = 20;
                 pointerEvents = "pointer-events-auto";
+                visibility = "visible";
               } else if (isFarLeft) {
-                translateX = -140;
+                translateX = -145;
                 scale = 0.75;
                 opacity = 0;
                 zIndex = 10;
+                visibility = "hidden";
               } else if (isFarRight) {
-                translateX = 140;
+                translateX = 145;
                 scale = 0.75;
                 opacity = 0;
                 zIndex = 10;
+                visibility = "hidden";
               }
+
+              // When wrapping, disable transition so it snaps off-screen without crossing the viewport
+              const transitionStyle = isWrapping
+                ? "none"
+                : "transform 0.65s cubic-bezier(0.25, 1, 0.4, 1), opacity 0.65s cubic-bezier(0.25, 1, 0.4, 1), border-color 0.4s ease, box-shadow 0.4s ease";
 
               return (
                 <div
@@ -185,6 +240,10 @@ export default function DiningExperience({ onOpenReservation }) {
                   onClick={() => {
                     if (isCenter) {
                       openLightbox(idx);
+                    } else if (isLeft) {
+                      handlePrev();
+                    } else if (isRight) {
+                      handleNext();
                     } else {
                       setCurrentIndex(idx);
                     }
@@ -193,10 +252,14 @@ export default function DiningExperience({ onOpenReservation }) {
                     position: "absolute",
                     left: "50%",
                     top: "50%",
-                    transform: `translate(calc(-50% + ${translateX}%), -50%) scale(${scale})`,
+                    transform: `translate3d(calc(-50% + ${translateX}%), -50%, 0) scale(${scale})`,
                     zIndex,
                     opacity,
-                    transition: "all 0.55s cubic-bezier(0.25, 1, 0.4, 1)",
+                    visibility,
+                    transition: transitionStyle,
+                    willChange: "transform, opacity",
+                    backfaceVisibility: "hidden",
+                    WebkitBackfaceVisibility: "hidden",
                   }}
                   className={`w-[85vw] sm:w-[580px] lg:w-[680px] h-[340px] sm:h-[420px] lg:h-[480px] rounded-3xl overflow-hidden cursor-pointer shadow-2xl group ${pointerEvents} ${
                     isCenter
@@ -204,7 +267,7 @@ export default function DiningExperience({ onOpenReservation }) {
                       : "border border-white/10 hover:border-[#cba158]/60 hover:opacity-85 shadow-black/80"
                   }`}
                 >
-                  {/* Photo */}
+                  {/* Space Image */}
                   <Image
                     src={space.src}
                     alt={space.alt}
@@ -218,13 +281,13 @@ export default function DiningExperience({ onOpenReservation }) {
                   <div
                     className={`absolute inset-0 transition-opacity duration-500 ${
                       isCenter
-                        ? "bg-gradient-to-t from-black/90 via-black/25 to-black/10"
-                        : "bg-black/55 group-hover:bg-black/35"
+                        ? "bg-gradient-to-t from-black/95 via-black/35 to-black/10"
+                        : "bg-black/60 group-hover:bg-black/40"
                     }`}
                   />
 
                   {/* Card Overlay Content */}
-                  <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7 flex items-end justify-between pointer-events-none">
+                  <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7 flex items-end justify-between pointer-events-none select-text">
                     <div className="min-w-0 pr-3">
                       <div className="flex items-center gap-2 mb-1.5">
                         <span className="text-[10px] sm:text-xs uppercase tracking-widest text-[#cba158] font-bold">
@@ -240,12 +303,12 @@ export default function DiningExperience({ onOpenReservation }) {
                         {space.title}
                       </h3>
 
-                      <p className="text-xs sm:text-sm text-neutral-300 mt-1 line-clamp-1 sm:line-clamp-2 font-light max-w-lg">
+                      <p className="text-xs sm:text-sm text-neutral-300 mt-1 line-clamp-1 sm:line-clamp-2 font-light max-w-lg select-text">
                         {space.description}
                       </p>
                     </div>
 
-                    <div className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[#cba158] flex items-center justify-center flex-shrink-0 group-hover:bg-[#cba158] group-hover:text-black transition duration-200">
+                    <div className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[#cba158] flex items-center justify-center flex-shrink-0 group-hover:bg-[#cba158] group-hover:text-black transition duration-200 shadow-lg">
                       <Maximize2 className="w-4 h-4" />
                     </div>
                   </div>
@@ -254,44 +317,42 @@ export default function DiningExperience({ onOpenReservation }) {
             })}
           </div>
 
-          {/* Left & Right Clickable Controls */}
+          {/* Left Navigation Arrow */}
           <button
             onClick={handlePrev}
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-40 cursor-pointer p-1 text-white opacity-85 hover:opacity-100 hover:scale-110 transition-all active:scale-95"
-            title="Previous Photo"
-            aria-label="Previous Photo"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-40 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/75 hover:bg-[#cba158] text-[#cba158] hover:text-black border border-[#cba158]/40 hover:border-[#cba158] flex items-center justify-center transition-all duration-300 shadow-2xl backdrop-blur-md hover:scale-105 active:scale-95 cursor-pointer"
+            title="Previous Space"
+            aria-label="Previous Space"
           >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/85 backdrop-blur-md border border-[#cba158]/40 hover:border-[#cba158] text-[#cba158] flex items-center justify-center shadow-2xl">
-              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
-            </div>
+            <ChevronLeft className="w-6 h-6" />
           </button>
 
+          {/* Right Navigation Arrow */}
           <button
             onClick={handleNext}
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-40 cursor-pointer p-1 text-white opacity-85 hover:opacity-100 hover:scale-110 transition-all active:scale-95"
-            title="Next Photo"
-            aria-label="Next Photo"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-40 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/75 hover:bg-[#cba158] text-[#cba158] hover:text-black border border-[#cba158]/40 hover:border-[#cba158] flex items-center justify-center transition-all duration-300 shadow-2xl backdrop-blur-md hover:scale-105 active:scale-95 cursor-pointer"
+            title="Next Space"
+            aria-label="Next Space"
           >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/85 backdrop-blur-md border border-[#cba158]/40 hover:border-[#cba158] text-[#cba158] flex items-center justify-center shadow-2xl">
-              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
-            </div>
+            <ChevronRight className="w-6 h-6" />
           </button>
         </div>
 
         {/* ===================== SLIDE NAVIGATION DOTS ===================== */}
-        <div className="mt-6 sm:mt-8 flex items-center justify-center gap-2">
+        <div className="mt-6 sm:mt-8 flex items-center justify-center gap-2.5">
           {galleryImages.map((space, idx) => {
             const isActive = idx === currentIndex;
             return (
               <button
                 key={space.id}
                 onClick={() => setCurrentIndex(idx)}
-                className={`h-2 rounded-full transition-all duration-300 ${
+                className={`h-2.5 rounded-full transition-all duration-500 cursor-pointer ${
                   isActive
-                    ? "w-8 sm:w-10 bg-[#cba158] shadow-md shadow-[#cba158]/30"
-                    : "w-2.5 bg-white/20 hover:bg-white/40"
+                    ? "w-9 sm:w-11 bg-[#cba158] shadow-[0_0_12px_rgba(203,161,88,0.5)]"
+                    : "w-2.5 bg-white/20 hover:bg-white/45"
                 }`}
                 title={`Go to ${space.title}`}
+                aria-label={`Slide ${idx + 1}: ${space.title}`}
               />
             );
           })}
@@ -325,7 +386,7 @@ export default function DiningExperience({ onOpenReservation }) {
 
             <button
               onClick={closeLightbox}
-              className="w-10 h-10 rounded-full bg-white/10 hover:bg-[#cba158] text-white hover:text-black flex items-center justify-center transition border border-white/20"
+              className="w-10 h-10 rounded-full bg-white/10 hover:bg-[#cba158] text-white hover:text-black flex items-center justify-center transition border border-white/20 cursor-pointer"
               title="Close (Esc)"
             >
               <X className="w-5 h-5" />
@@ -340,7 +401,7 @@ export default function DiningExperience({ onOpenReservation }) {
             {/* Left Nav Button */}
             <button
               onClick={prevLightboxImage}
-              className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/75 hover:bg-[#cba158] text-white hover:text-black border border-white/20 flex items-center justify-center transition shadow-2xl z-20"
+              className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/75 hover:bg-[#cba158] text-white hover:text-black border border-white/20 flex items-center justify-center transition shadow-2xl z-20 cursor-pointer"
               title="Previous Photo (Left Arrow)"
             >
               <ChevronLeft className="w-6 h-6" />
@@ -361,7 +422,7 @@ export default function DiningExperience({ onOpenReservation }) {
             {/* Right Nav Button */}
             <button
               onClick={nextLightboxImage}
-              className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/75 hover:bg-[#cba158] text-white hover:text-black border border-white/20 flex items-center justify-center transition shadow-2xl z-20"
+              className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/75 hover:bg-[#cba158] text-white hover:text-black border border-white/20 flex items-center justify-center transition shadow-2xl z-20 cursor-pointer"
               title="Next Photo (Right Arrow)"
             >
               <ChevronRight className="w-6 h-6" />
@@ -401,7 +462,7 @@ export default function DiningExperience({ onOpenReservation }) {
                     <button
                       key={img.id}
                       onClick={() => setLightboxIndex(idx)}
-                      className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                      className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-lg overflow-hidden border-2 transition-all duration-200 cursor-pointer ${
                         isCurrent
                           ? "border-[#cba158] ring-2 ring-[#cba158]/50 scale-105"
                           : "border-white/20 opacity-60 hover:opacity-100"

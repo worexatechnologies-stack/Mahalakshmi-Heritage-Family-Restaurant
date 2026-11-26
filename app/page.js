@@ -2,77 +2,98 @@
 
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
-import EventCountdownBar from "@/components/EventCountdownBar";
 import Hero from "@/components/Hero";
-import EventHighlights from "@/components/EventHighlights";
-import EventSchedule from "@/components/EventSchedule";
-import AboutHours from "@/components/AboutHours";
-import FeatureBar from "@/components/FeatureBar";
-import Signatures from "@/components/Signatures";
-import ThreeDDishExperience from "@/components/ThreeDDishExperience";
-import RecipesSpecials from "@/components/RecipesSpecials";
+import PromotionalBanner from "@/components/PromotionalBanner";
 import DiningExperience from "@/components/DiningExperience";
-import CelebrationsCatering from "@/components/CelebrationsCatering";
-import WhyChooseUs from "@/components/WhyChooseUs";
-import FAQSection from "@/components/FAQSection";
-import Testimonials from "@/components/Testimonials";
+import PromotionalEventVideos from "@/components/PromotionalEventVideos";
+import EventBookingSection from "@/components/EventBookingSection";
 import Footer from "@/components/Footer";
 import ReservationModal from "@/components/ReservationModal";
-import DishModal from "@/components/DishModal";
+import EventHighlightsModal from "@/components/EventHighlightsModal";
 import Toast from "@/components/Toast";
-import ThreeDBackgroundParticles from "@/components/ThreeDBackgroundParticles";
 
 export default function Home({ initialSection }) {
   const [isReservationOpen, setIsReservationOpen] = useState(false);
-  const [selectedDish, setSelectedDish] = useState(null);
+  const [isHighlightsOpen, setIsHighlightsOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [isToastVisible, setIsToastVisible] = useState(false);
 
   useEffect(() => {
-    // 1. Disable browser's erratic scroll restoration so the page doesn't jump on reload
-    if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
-      window.history.scrollRestoration = "manual";
-    }
-
-    // 2. Determine target section
-    const currentHash = typeof window !== "undefined" ? window.location.hash.replace(/^#/, "").toLowerCase() : "";
-    const pathnameSection = typeof window !== "undefined" ? window.location.pathname.replace(/^\//, "").toLowerCase() : "";
-    
-    // Only scroll if there is an explicit section requested
-    const targetSection = initialSection || currentHash || (pathnameSection && pathnameSection !== "home" ? pathnameSection : null);
-
-    if (targetSection && targetSection !== "home") {
-      const targetEl = document.getElementById(targetSection);
-      if (targetEl) {
-        setTimeout(() => {
-          targetEl.scrollIntoView({ behavior: "smooth" });
-        }, 200);
+    // 1. Smooth scroll if loaded at /contact, /gallery, /about, /menu, /event, /home
+    const targetPath = (
+      initialSection ||
+      (typeof window !== "undefined" ? window.location.pathname.replace(/^\//, "").toLowerCase() : "")
+    );
+    if (targetPath) {
+      if (targetPath === "menu" || targetPath === "event") {
+        // Open the Sunday Event Highlights or scroll
+        const targetEl = document.getElementById(targetPath);
+        if (targetEl) {
+          setTimeout(() => targetEl.scrollIntoView({ behavior: "smooth" }), 250);
+        }
+      } else {
+        const targetEl = document.getElementById(targetPath);
+        if (targetEl) {
+          setTimeout(() => {
+            targetEl.scrollIntoView({ behavior: "smooth" });
+          }, 250);
+        }
       }
-    } else {
-      // Always ensure the page starts cleanly at the top Hero & Announcement banner on load/refresh
-      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }
 
-    // 3. Smooth scroll on anchor clicks without breaking page reloads
+    // 2. Click interceptor to update URL and smooth scroll without full page refresh
     const handleAnchorClick = (e) => {
       const anchor = e.target.closest("a");
       if (!anchor) return;
       const href = anchor.getAttribute("href");
       if (!href) return;
 
+      let sectionId = "";
+      let newPath = "";
+
       if (href.startsWith("#")) {
-        const sectionId = href.replace(/^#/, "");
+        sectionId = href.replace(/^#/, "");
+        newPath = "/" + sectionId;
+      } else if (
+        href.startsWith("/") &&
+        !href.startsWith("//") &&
+        !href.includes(".") &&
+        !href.startsWith("/api")
+      ) {
+        sectionId = href.replace(/^\//, "");
+        newPath = href;
+      }
+
+      if (sectionId) {
+        // Allow full navigation to standalone subpages (like /contact)
+        if (href === "/contact" || anchor.getAttribute("data-page") === "true") {
+          return;
+        }
+
         const targetEl = document.getElementById(sectionId);
         if (targetEl) {
           e.preventDefault();
+          window.history.pushState(null, "", newPath);
           targetEl.scrollIntoView({ behavior: "smooth" });
         }
       }
     };
 
+    // 3. Browser Back/Forward navigation support
+    const handlePopState = () => {
+      const sectionName = window.location.pathname.replace(/^\//, "").toLowerCase();
+      const targetEl = document.getElementById(sectionName || "home");
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+
     document.addEventListener("click", handleAnchorClick);
+    window.addEventListener("popstate", handlePopState);
+
     return () => {
       document.removeEventListener("click", handleAnchorClick);
+      window.removeEventListener("popstate", handlePopState);
     };
   }, [initialSection]);
 
@@ -85,71 +106,46 @@ export default function Home({ initialSection }) {
   };
 
   return (
-    <main className="min-h-screen bg-[#0c0c0d] text-[#f4ede4] relative overflow-x-hidden">
-      {/* 3D Interactive Floating Gold Particle & Ember Field */}
-      <ThreeDBackgroundParticles />
+    <main className="min-h-screen bg-[#0c0c0d] text-[#f4ede4] relative overflow-x-hidden selection:bg-[#cba158] selection:text-[#0c0c0d]">
+      {/* Top Announcement Bar & Navigation Bar */}
+      <Navbar
+        onBookTable={() => setIsReservationOpen(true)}
+        onOpenHighlights={() => setIsHighlightsOpen(true)}
+      />
 
-      {/* Top Real-time Event Countdown & Urgent Announcement Bar */}
-      <EventCountdownBar onOpenReservation={() => setIsReservationOpen(true)} />
+      {/* 1. Grand Sunday Heritage Feast & Live Music Gala Banner Section */}
+      <Hero
+        onOpenReservation={() => setIsReservationOpen(true)}
+        onOpenHighlights={() => setIsHighlightsOpen(true)}
+      />
 
-      {/* Navigation */}
-      <Navbar onOpenReservation={() => setIsReservationOpen(true)} />
+      {/* Special Promotional Sliding Banner: 1+1 Beer & Unlimited Food @ Rs 999/- */}
+      <PromotionalBanner onOpenReservation={() => setIsReservationOpen(true)} />
 
-      {/* 1. Grand Sunday Event Hero Showcase */}
-      <Hero onOpenReservation={() => setIsReservationOpen(true)} />
-
-      {/* 2. Sunday Event Highlights & Festival Features */}
-      <EventHighlights onOpenReservation={() => setIsReservationOpen(true)} />
-
-      {/* 3. Sunday Event Program Schedule & Table Options */}
-      <EventSchedule onOpenReservation={() => setIsReservationOpen(true)} />
-
-      {/* 4. About Us - A Heritage Worth Savouring */}
-      <AboutHours onOpenReservation={() => setIsReservationOpen(true)} />
-
-      {/* 3. Restaurant Highlights - The Art of Authentic Cooking */}
-      <FeatureBar />
-
-      {/* 4. Dishes Crafted with Heritage & Care - Signatures Menu */}
-      <Signatures onSelectDish={(dish) => setSelectedDish(dish)} />
-
-      {/* 5. Interactive 3D Tasting Showcase */}
-      <ThreeDDishExperience onSelectDish={(dish) => setSelectedDish(dish)} />
-
-      {/* 6. Mahalakshmi Kitchen Secrets - Heritage Recipes & Specials */}
-      <RecipesSpecials onSelectDish={(dish) => setSelectedDish(dish)} />
-
-      {/* 7. Where Tradition Meets Warmth - Dining Experience & Filmstrip Gallery */}
+      {/* 2. A Glimpse of Our World Section (Dining Spaces, Cabanas, Palm Walkway) */}
       <DiningExperience onOpenReservation={() => setIsReservationOpen(true)} />
 
-      {/* 8. Family Celebrations & Catering */}
-      <CelebrationsCatering onOpenReservation={() => setIsReservationOpen(true)} />
+      {/* 3. Promotional Event Video Showcase (FINAL-01.mp4, 1.mp4, 2.mp4, 3.mp4) */}
+      <PromotionalEventVideos onOpenReservation={() => setIsReservationOpen(true)} />
 
-      {/* 9. Why Choose Us? */}
-      <WhyChooseUs />
+      {/* 4. Event Table Reservation In-Page Form Section */}
+      <EventBookingSection onBookingSuccess={(msg) => showToast(msg)} />
 
-      {/* 10. Frequently Asked Questions */}
-      <FAQSection />
-
-      {/* 11. Loved By Our Guests Testimonials */}
-      <Testimonials onSelectDish={(dish) => setSelectedDish(dish)} />
-
-      {/* 12. Footer */}
+      {/* 5. Footer */}
       <Footer onSubscribe={(msg) => showToast(msg)} />
 
-      {/* Interactive Reservation Modal */}
+      {/* Interactive Book a Seat / Sunday Event Table Modal */}
       <ReservationModal
         isOpen={isReservationOpen}
         onClose={() => setIsReservationOpen(false)}
         onBookingSuccess={(msg) => showToast(msg)}
       />
 
-      {/* Interactive Dish Quick View Modal */}
-      <DishModal
-        dish={selectedDish}
-        isOpen={!!selectedDish}
-        onClose={() => setSelectedDish(null)}
-        onOrderDish={(msg) => showToast(msg)}
+      {/* Interactive Sunday Gala Highlights Modal */}
+      <EventHighlightsModal
+        isOpen={isHighlightsOpen}
+        onClose={() => setIsHighlightsOpen(false)}
+        onBookTable={() => setIsReservationOpen(true)}
       />
 
       {/* Toast Alert */}

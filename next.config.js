@@ -9,10 +9,16 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config) => {
+    config.infrastructureLogging = {
+      level: 'error',
+    };
+    return config;
+  },
   async rewrites() {
     return [
       {
-        source: '/:section(home|about|menu|gallery|contact|recipes|celebrations|why-us|faq)',
+        source: '/:section(recipes|celebrations|why-us|faq|book|reservation)',
         destination: '/',
       },
     ];

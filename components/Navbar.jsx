@@ -1,139 +1,162 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
+import { ArrowRight, Clock } from "lucide-react";
 
-export default function Navbar({ onOpenReservation }) {
+// Production Event Target Timestamp: Sunday, Nov 29, 2026 at 23:59:59 IST (+05:30)
+// Once this timestamp is reached, the top announcement bar is permanently removed in production.
+const EVENT_TARGET_TIMESTAMP = new Date("2026-11-29T23:59:59+05:30").getTime();
+
+export default function Navbar({ onBookTable }) {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isEventExpired, setIsEventExpired] = useState(false);
+  
+  // Real-time Countdown timer for Sunday Nov 29 event
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    const updateCountdown = () => {
+      const now = Date.now();
+      const difference = EVENT_TARGET_TIMESTAMP - now;
+
+      // When the countdown completes, mark event as expired to remove only this section
+      if (difference <= 0) {
+        setIsEventExpired(true);
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return false;
+      }
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+      setTimeLeft({ days, hours, minutes, seconds });
+      return true;
+    };
+
+    // Initial check
+    const isRunning = updateCountdown();
+    if (!isRunning) {
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
+
+    const timer = setInterval(() => {
+      const active = updateCountdown();
+      if (!active) {
+        clearInterval(timer);
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearInterval(timer);
+    };
   }, []);
 
-  const navLinks = [
-    { name: "Sunday Event", href: "#sunday-event", isSpecial: true },
-    { name: "Home", href: "/home" },
-    { name: "About", href: "/about" },
-    { name: "Menu", href: "/menu" },
-    { name: "Gallery", href: "/gallery" },
-    { name: "Contact", href: "/contact" },
-  ];
-
   return (
-    <nav
-      className={`fixed top-9 sm:top-10 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-[#0c0c0d]/95 backdrop-blur-md border-b border-white/10 py-3 sm:py-3.5 shadow-2xl"
-          : "bg-gradient-to-b from-black/90 via-black/45 to-transparent py-4 sm:py-6"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-2">
-          
-          {/* Logo */}
-          <a href="/home" className="flex items-center gap-3 group min-w-0 select-none">
-            {/* Centered Circular Royal Crest */}
-            <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-[#cba158]/70 ring-1 ring-[#cba158]/30 bg-[#0e0e11] flex-shrink-0 group-hover:border-[#cba158] group-hover:ring-[#cba158]/60 transition-all duration-300 shadow-md shadow-black/80">
-              <Image
-                src="/logo-centered.png"
-                alt="Mahalakshmi Spice Heritage Logo"
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
-                priority
-              />
-            </div>
+    <header className="fixed top-0 left-0 right-0 z-50">
+      
+      {/* ===================== TOP ANNOUNCEMENT BAR ===================== */}
+      {/* Automatically unmounted and removed from the DOM once the countdown reaches 0 in production */}
+      {!isEventExpired && (
+        <div className="bg-[#14100b]/95 border-b border-[#3d3221]/70 backdrop-blur-md text-[11px] sm:text-xs text-[#e4c489] py-1.5 px-3 sm:px-6 transition-all duration-300">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
             
-            {/* Perfectly Aligned Typographic Hierarchy */}
-            <div className="flex flex-col justify-center min-w-0">
-              <span className="font-serif text-base sm:text-lg lg:text-xl font-normal tracking-[0.08em] uppercase text-[#f4ede4] group-hover:text-[#cba158] transition-colors duration-200 leading-none">
-                Mahalakshmi
+            {/* Left: Event Title with glowing amber dot */}
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="relative flex h-2 w-2 flex-shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500 shadow-[0_0_8px_#f59e0b]" />
               </span>
-              <span className="text-[8.5px] sm:text-[9.5px] uppercase tracking-[0.24em] text-[#cba158]/85 group-hover:text-white transition-colors duration-200 font-medium leading-none mt-1">
-                Family Restaurant
+              <span className="tracking-wide uppercase font-medium truncate text-[10px] sm:text-xs">
+                <span className="text-[#cba158] font-bold">THIS SUNDAY (NOV 29):</span> Grand Heritage Feast &amp; Live Music Gala
               </span>
             </div>
-          </a>
 
-          {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className={`text-xs lg:text-sm font-normal tracking-wide transition-all ${
-                  link.isSpecial
-                    ? "px-3 py-1 rounded-full bg-[#cba158]/15 text-[#cba158] border border-[#cba158]/40 font-medium hover:bg-[#cba158] hover:text-[#0c0c0d] shadow-sm shadow-[#cba158]/10"
-                    : "text-neutral-300 hover:text-[#cba158]"
-                }`}
+            {/* Right: Real-time Countdown Timer & Small Book Table Button */}
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              <div className="flex items-center gap-1 sm:gap-1.5 font-mono text-[10px] sm:text-xs text-[#f4ede4] bg-black/40 border border-white/10 px-2 py-0.5 rounded">
+                <Clock className="w-3 h-3 text-[#cba158]" />
+                <span>{timeLeft.days}d</span>
+                <span className="text-[#cba158]">:</span>
+                <span>{String(timeLeft.hours).padStart(2, "0")}h</span>
+                <span className="text-[#cba158]">:</span>
+                <span>{String(timeLeft.minutes).padStart(2, "0")}m</span>
+                <span className="text-[#cba158]">:</span>
+                <span>{String(timeLeft.seconds).padStart(2, "0")}s</span>
+              </div>
+
+              <button
+                onClick={onBookTable}
+                className="bg-[#cba158] hover:bg-[#dcb56d] text-[#0c0c0d] font-bold text-[10px] sm:text-[11px] uppercase tracking-wider px-2.5 sm:px-3.5 py-1 rounded transition duration-200 flex items-center gap-1 shadow-sm active:scale-95 cursor-pointer whitespace-nowrap"
               >
-                {link.name}
-              </a>
-            ))}
-          </div>
+                <span>BOOK TABLE</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
 
-          {/* Right Action / Book Table Button */}
-          <div className="hidden md:flex items-center flex-shrink-0">
-            <button
-              onClick={onOpenReservation}
-              className="border border-[#cba158]/80 hover:border-[#cba158] hover:bg-[#cba158] hover:text-[#0c0c0d] text-[#cba158] text-xs uppercase tracking-widest px-5 py-2.5 rounded transition duration-200 font-medium whitespace-nowrap"
-            >
-              Book Table
-            </button>
           </div>
-
-          {/* Mobile Right Buttons */}
-          <div className="flex md:hidden items-center gap-1.5 sm:gap-2 flex-shrink-0">
-            <button
-              onClick={onOpenReservation}
-              className="text-[11px] uppercase tracking-wider border border-[#cba158]/70 text-[#cba158] px-2.5 py-1.5 rounded active:bg-[#cba158] active:text-[#0c0c0d] transition font-medium"
-            >
-              Book
-            </button>
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-neutral-300 hover:text-white p-1.5 rounded-lg active:bg-white/10"
-              aria-label="Toggle navigation menu"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6 text-[#cba158]" /> : <Menu className="w-6 h-6 text-[#cba158]" />}
-            </button>
-          </div>
-
-        </div>
-      </div>
-
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-[#101013]/98 backdrop-blur-xl border-b border-[#cba158]/25 px-5 py-5 space-y-4 shadow-2xl animate-fade-in">
-          <div className="flex flex-col space-y-2.5">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm uppercase tracking-wider text-neutral-300 hover:text-[#cba158] py-2 border-b border-neutral-800/60 font-medium"
-              >
-                {link.name}
-              </a>
-            ))}
-          </div>
-          <button
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onOpenReservation();
-            }}
-            className="w-full mt-3 bg-[#cba158] text-[#0c0c0d] font-bold text-xs uppercase tracking-widest py-3 rounded text-center active:bg-[#d8b067]"
-          >
-            Book Family Table
-          </button>
         </div>
       )}
-    </nav>
+
+      {/* ===================== MAIN NAVBAR ===================== */}
+      <nav
+        className={`transition-all duration-300 ${
+          isScrolled
+            ? "bg-[#0c0c0d]/95 backdrop-blur-md border-b border-white/10 py-2 sm:py-2.5 shadow-2xl"
+            : "bg-gradient-to-b from-black/85 via-black/40 to-transparent py-2 sm:py-3 border-b border-white/5"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between gap-4">
+            
+            {/* Left: Brand Logo & Title */}
+            <a href="#home" className="flex items-center gap-2.5 sm:gap-3 group min-w-0">
+              <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-[#cba158]/90 bg-[#101114] flex-shrink-0 shadow-md group-hover:border-[#cba158] transition">
+                <Image
+                  src="/logo.png"
+                  alt="Mahalakshmi Logo"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="font-serif text-sm sm:text-lg lg:text-xl font-normal tracking-[0.18em] text-[#f4ede4] group-hover:text-[#cba158] transition duration-200 uppercase leading-none">
+                  Mahalakshmi
+                </span>
+                <span className="text-[8px] sm:text-[9.5px] uppercase tracking-[0.25em] text-[#8e8b86] group-hover:text-neutral-300 transition mt-1 leading-none font-medium">
+                  Family Restaurant
+                </span>
+              </div>
+            </a>
+
+            {/* Right: Outlined BOOK TABLE Button */}
+            <div className="flex items-center flex-shrink-0">
+              <button
+                onClick={onBookTable}
+                className="border border-[#cba158]/80 hover:border-[#cba158] hover:bg-[#cba158] hover:text-[#0c0c0d] text-[#cba158] text-xs uppercase tracking-widest px-4 sm:px-5 py-2 rounded transition duration-200 font-medium whitespace-nowrap active:scale-95 cursor-pointer shadow-sm"
+              >
+                BOOK TABLE
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </nav>
+
+    </header>
   );
 }
