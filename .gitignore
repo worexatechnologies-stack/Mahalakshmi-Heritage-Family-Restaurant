@@ -25,6 +25,8 @@ node_modules/
 # Next.js build outputs & cache
 .next/
 /.next/
+.next-dev/
+/.next-dev/
 out/
 /out/
 build/
@@ -47,8 +49,7 @@ pnpm-debug.log*
 .vercel/
 .vercel
 
-# Media files over GitHub 100MB limit
-*.mp4
+# Large raw media files
 *.mkv
 *.mov
 

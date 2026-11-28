@@ -87,18 +87,29 @@ export default function Footer({ onSubscribe }) {
               <h5 className="text-xs uppercase tracking-widest font-bold text-[#1c1a17]">
                 Quick Links
               </h5>
-              <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-[#5a5650]">
-                <li><a href="#home" className="hover:text-[#cba158] transition">Home</a></li>
-                <li><a href="#event" className="hover:text-[#cba158] transition font-medium text-[#cba158]">Sunday Gala Event</a></li>
-                <li><a href="#gallery" className="hover:text-[#cba158] transition">A Glimpse of Our World</a></li>
-                <li><a href="#videos" className="hover:text-[#cba158] transition">Event Reels &amp; Videos</a></li>
+              <ul className="space-y-2 sm:space-y-2.5 text-xs sm:text-sm text-[#5a5650]">
+                <li>
+                  <a href="#home" className="hover:text-[#cba158] transition duration-200">
+                    Home
+                  </a>
+                </li>
+                <li>
+                  <a href="#gallery" className="hover:text-[#cba158] transition duration-200">
+                    A Glimpse of Our World
+                  </a>
+                </li>
+                <li>
+                  <a href="#videos" className="hover:text-[#cba158] transition duration-200">
+                    Event Reels &amp; Videos
+                  </a>
+                </li>
                 <li>
                   <Link
                     href="/contact"
                     data-page="true"
-                    className="hover:text-[#cba158] transition flex items-center justify-between group/link font-medium text-[#1c1a17]"
+                    className="hover:text-[#cba158] transition duration-200 flex items-center justify-between group/link font-medium text-[#1c1a17]"
                   >
-                    <span>Contact Page</span>
+                    <span>Contact Us</span>
                     <span className="text-[9px] bg-[#cba158]/20 group-hover/link:bg-[#cba158] group-hover/link:text-[#0c0c0d] text-[#cba158] px-1.5 py-0.5 rounded font-mono uppercase font-bold tracking-wider">
                       PAGE
                     </span>

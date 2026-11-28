@@ -1,47 +1,75 @@
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate",
+};
+
 export async function POST(request) {
   try {
     const contentType = request.headers.get("content-type") || "";
     if (!contentType.toLowerCase().includes("application/json")) {
       return NextResponse.json(
         { success: false, error: "Unsupported Media Type. Expected application/json." },
-        { status: 415 }
+        { status: 415, headers: NO_STORE_HEADERS }
       );
     }
 
-    const data = await request.json();
-    const key_id = process.env.RAZORPAY_KEY_ID;
-    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+    let data;
+    try {
+      data = await request.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, error: "Invalid JSON request body." },
+        { status: 400, headers: NO_STORE_HEADERS }
+      );
+    }
+
+    const key_id = (
+      process.env.RAZORPAY_KEY_ID ||
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+      ""
+    ).trim();
+    const key_secret = (process.env.RAZORPAY_KEY_SECRET || "").trim();
 
     if (!key_id || !key_secret) {
-      console.error("[Razorpay Error]: Missing RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET in environment.");
+      console.error("[Razorpay Error]: Missing RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET in server environment.");
       return NextResponse.json(
         { success: false, error: "Razorpay payment gateway is not configured on the server." },
-        { status: 500 }
+        { status: 503, headers: NO_STORE_HEADERS }
       );
     }
 
-    // Validation
-    const rawName = typeof data.name === "string" ? data.name.trim() : "";
-    const rawPhone = typeof data.phone === "string" ? data.phone.trim() : "";
-    if (rawName.length < 2) {
+    // Strict input validation
+    const rawName = typeof data?.name === "string" ? data.name.trim() : "";
+    const rawPhone = typeof data?.phone === "string" ? data.phone.trim() : "";
+    const rawEmail = typeof data?.email === "string" ? data.email.trim() : "";
+
+    if (rawName.length < 2 || rawName.length > 100) {
       return NextResponse.json(
-        { success: false, error: "Full Name is required (minimum 2 characters)." },
-        { status: 400 }
+        { success: false, error: "Full Name is required (2-100 characters)." },
+        { status: 400, headers: NO_STORE_HEADERS }
       );
     }
+
     const phoneDigits = rawPhone.replace(/\D/g, "");
     if (phoneDigits.length < 8 || phoneDigits.length > 15) {
       return NextResponse.json(
         { success: false, error: "Valid contact phone number (8-15 digits) is required." },
-        { status: 400 }
+        { status: 400, headers: NO_STORE_HEADERS }
       );
     }
 
-    // Set amount in paise (1 INR = 100 paise; e.g. Rs 100 = 10000 paise)
-    const amountInRupees = parseFloat(process.env.RESERVATION_AMOUNT_INR || data.amount || 100);
+    if (rawEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawEmail)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid Email Address format." },
+        { status: 400, headers: NO_STORE_HEADERS }
+      );
+    }
+
+    // Enforce reservation fee strictly on the server (never trust client-supplied amount)
+    const configuredAmount = parseFloat(process.env.RESERVATION_AMOUNT_INR || "100");
+    const amountInRupees = Number.isFinite(configuredAmount) && configuredAmount >= 1 ? configuredAmount : 100;
     const amountInPaise = Math.round(amountInRupees * 100);
 
     const razorpay = new Razorpay({
@@ -59,30 +87,36 @@ export async function POST(request) {
         bookingRef,
         guestName: rawName.slice(0, 50),
         phone: rawPhone.slice(0, 20),
-        date: typeof data.date === "string" ? data.date.slice(0, 20) : "",
-        time: typeof data.time === "string" ? data.time.slice(0, 20) : "",
-        seats: typeof data.seats === "string" ? data.seats.slice(0, 30) : "",
+        date: typeof data?.date === "string" ? data.date.trim().slice(0, 20) : "",
+        time: typeof data?.time === "string" ? data.time.trim().slice(0, 20) : "",
+        seats: typeof data?.seats === "string" ? data.seats.trim().slice(0, 30) : "",
       },
     };
 
     const order = await razorpay.orders.create(orderOptions);
 
-    return NextResponse.json({
-      success: true,
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || key_id,
-      bookingRef,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        orderId: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        keyId: key_id,
+        bookingRef,
+      },
+      {
+        status: 200,
+        headers: NO_STORE_HEADERS,
+      }
+    );
   } catch (err) {
     console.error("[Razorpay Order Creation Error]:", err);
     return NextResponse.json(
       {
         success: false,
-        error: err.error?.description || err.message || "Failed to create payment order.",
+        error: err?.error?.description || err?.message || "Failed to create payment order.",
       },
-      { status: 500 }
+      { status: 500, headers: NO_STORE_HEADERS }
     );
   }
 }
@@ -90,17 +124,6 @@ export async function POST(request) {
 export async function GET() {
   return NextResponse.json(
     { success: false, error: "Method Not Allowed. Please use POST to create payment order." },
-    { status: 405, headers: { Allow: "POST, OPTIONS" } }
+    { status: 405, headers: { Allow: "POST", ...NO_STORE_HEADERS } }
   );
-}
-
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
-  });
 }

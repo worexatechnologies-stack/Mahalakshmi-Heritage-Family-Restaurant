@@ -1,4 +1,6 @@
 import "./globals.css";
+import Script from "next/script";
+import MetaPixel from "@/components/MetaPixel";
 
 export const metadata = {
   metadataBase: new URL("http://localhost:3000"),
@@ -37,6 +39,11 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="min-h-screen bg-[#0c0c0d] text-[#f4ede4] antialiased selection:bg-[#cba158] selection:text-[#0c0c0d]" suppressHydrationWarning>
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="lazyOnload"
+        />
+        <MetaPixel />
         {children}
       </body>
     </html>

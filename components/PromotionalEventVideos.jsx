@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Volume2, VolumeX, Maximize2, Film, Play, Pause } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Volume2, VolumeX, Maximize2, Film, Play, Pause, Loader2, RotateCcw } from "lucide-react";
 
 const REELS = [
   {
@@ -31,42 +31,87 @@ const REELS = [
 ];
 
 /**
- * DedicatedVideoCard - Streamlined Card containing ONLY the video reel player
- * Autoplay is strictly disabled to guarantee buttery-smooth, satisfying 60/120fps scrolling.
+ * DedicatedVideoCard - High-performance vertical video reel card
+ * Built to strictly adhere to modern browser media policies (iOS Safari, Android Chrome, Desktop)
  */
 function DedicatedVideoCard({ reel, total, activeAudioId, setActiveAudioId }) {
   const videoRef = useRef(null);
   const cardRef = useRef(null);
+
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isBuffering, setIsBuffering] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
-  // Audio state is tied to whether this specific reel is the active audio source
   const isAudioActive = activeAudioId === reel.id;
+  const isAudioActiveRef = useRef(isAudioActive);
+  isAudioActiveRef.current = isAudioActive;
 
-  // Sync state if video plays/pauses
+  // Track video playback state via native DOM events
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
+    video.defaultMuted = true;
+
+    const onPlay = () => {
+      setIsPlaying(true);
+      setIsBuffering(false);
+    };
+
+    const onPlaying = () => {
+      setIsPlaying(true);
+      setIsBuffering(false);
+    };
+
+    const onPause = () => {
+      setIsPlaying(false);
+      setIsBuffering(false);
+    };
+
+    const onWaiting = () => {
+      // ONLY trigger buffering indicator if video is actively playing
+      if (!video.paused && !video.ended) {
+        setIsBuffering(true);
+      }
+    };
+
+    const onCanPlay = () => {
+      setIsBuffering(false);
+      setHasError(false);
+    };
+
+    const onError = (e) => {
+      console.warn(`[Video Error] Reel ${reel.id}:`, video.error?.message || e);
+      setIsBuffering(false);
+      setIsPlaying(false);
+      setHasError(true);
+    };
 
     video.addEventListener("play", onPlay);
+    video.addEventListener("playing", onPlaying);
     video.addEventListener("pause", onPause);
+    video.addEventListener("waiting", onWaiting);
+    video.addEventListener("canplay", onCanPlay);
+    video.addEventListener("error", onError);
 
     return () => {
       video.removeEventListener("play", onPlay);
+      video.removeEventListener("playing", onPlaying);
       video.removeEventListener("pause", onPause);
+      video.removeEventListener("waiting", onWaiting);
+      video.removeEventListener("canplay", onCanPlay);
+      video.removeEventListener("error", onError);
     };
-  }, []);
+  }, [reel.id]);
 
-  // Synchronize audio mute state
+  // Synchronize audio mute state when activeAudioId changes
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
     video.muted = !isAudioActive;
   }, [isAudioActive]);
 
-  // Safe pause when user scrolls completely past this card
+  // Pause video only when card completely leaves viewport
   useEffect(() => {
     const el = cardRef.current;
     const video = videoRef.current;
@@ -77,62 +122,126 @@ function DedicatedVideoCard({ reel, total, activeAudioId, setActiveAudioId }) {
         if (!entry.isIntersecting && !video.paused) {
           video.pause();
           setIsPlaying(false);
-          if (isAudioActive) {
+          setIsBuffering(false);
+          if (isAudioActiveRef.current) {
             setActiveAudioId(null);
           }
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0 }
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [isAudioActive, setActiveAudioId]);
+  }, [setActiveAudioId]);
 
-  // Explicit User-Triggered Play / Pause Toggle
-  const togglePlay = (e) => {
-    if (e) e.stopPropagation();
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (video.paused) {
-      video.muted = !isAudioActive;
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => setIsPlaying(true)).catch(() => {});
+  // Resilient Play / Pause controller with browser autoplay-policy fallback
+  const togglePlay = useCallback(
+    async (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
       }
-    } else {
-      video.pause();
-      setIsPlaying(false);
-    }
-  };
+
+      const video = videoRef.current;
+      if (!video) return;
+
+      if (video.paused || video.ended) {
+        setIsBuffering(true);
+        setHasError(false);
+
+        // Synchronize mute state before play request
+        video.muted = !isAudioActiveRef.current;
+
+        try {
+          if (video.readyState === 0) {
+            video.load();
+          }
+
+          const playPromise = video.play();
+          if (playPromise !== undefined) {
+            await playPromise;
+            setIsPlaying(true);
+            setIsBuffering(false);
+          }
+        } catch (err) {
+          console.warn(`[Video Playback] Initial attempt blocked on reel ${reel.id}:`, err.message);
+
+          // Fallback: If unmuted playback is restricted by browser policy, play muted (100% browser success)
+          try {
+            video.muted = true;
+            setActiveAudioId(null);
+            await video.play();
+            setIsPlaying(true);
+            setIsBuffering(false);
+          } catch (fallbackErr) {
+            console.error(`[Video Playback] Fallback play failed on reel ${reel.id}:`, fallbackErr);
+            setIsBuffering(false);
+            setIsPlaying(false);
+            setHasError(true);
+          }
+        }
+      } else {
+        video.pause();
+        setIsPlaying(false);
+        setIsBuffering(false);
+      }
+    },
+    [reel.id, setActiveAudioId]
+  );
 
   // Toggle Mute / Unmute for this card
-  const toggleAudio = (e) => {
-    e.stopPropagation();
-    if (isAudioActive) {
-      setActiveAudioId(null);
-    } else {
-      setActiveAudioId(reel.id);
-      const video = videoRef.current;
-      if (video && video.paused) {
-        video.muted = false;
-        video.play().catch(() => {});
+  const toggleAudio = useCallback(
+    async (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
       }
-    }
-  };
+
+      const video = videoRef.current;
+      if (!video) return;
+
+      if (isAudioActive) {
+        setActiveAudioId(null);
+        video.muted = true;
+      } else {
+        setActiveAudioId(reel.id);
+        video.muted = false;
+
+        if (video.paused) {
+          try {
+            await video.play();
+            setIsPlaying(true);
+            setIsBuffering(false);
+          } catch (err) {
+            console.warn("[Video Audio Toggle Playback]", err);
+          }
+        }
+      }
+    },
+    [isAudioActive, reel.id, setActiveAudioId]
+  );
 
   // Toggle Fullscreen for this video
-  const toggleFullscreen = (e) => {
-    e.stopPropagation();
+  const toggleFullscreen = useCallback((e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     const video = videoRef.current;
     if (!video) return;
+
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     } else {
-      video.requestFullscreen().catch(() => {});
+      if (video.requestFullscreen) {
+        video.requestFullscreen().catch(() => {});
+      } else if (video.webkitEnterFullscreen) {
+        // iOS Safari native player
+        video.webkitEnterFullscreen();
+      }
     }
-  };
+  }, []);
 
   return (
     <div
@@ -151,30 +260,67 @@ function DedicatedVideoCard({ reel, total, activeAudioId, setActiveAudioId }) {
       </div>
 
       {/* Dedicated Vertical Reel Video Player */}
-      <div 
+      <div
         onClick={togglePlay}
-        className="relative w-full aspect-[9/16] bg-black rounded-[18px] sm:rounded-[22px] overflow-hidden border border-[#cba158]/30 shadow-[0_15px_45px_rgba(0,0,0,0.95)] cursor-pointer"
+        className="relative w-full aspect-[9/16] bg-black rounded-[18px] sm:rounded-[22px] overflow-hidden border border-[#cba158]/30 shadow-[0_15px_45px_rgba(0,0,0,0.95)] cursor-pointer select-none"
       >
-        {/* HTML5 Video Element (Autoplay is completely disabled for frictionless scrolling) */}
+        {/* HTML5 Video Element (preload="metadata" prevents bandwidth saturation on page load) */}
         <video
           ref={videoRef}
-          src={reel.src}
+          src={`${reel.src}#t=0.001`}
           loop
           muted={!isAudioActive}
           playsInline
+          webkit-playsinline="true"
+          x5-playsinline="true"
           preload="metadata"
+          controlsList="nodownload nofullscreen noremoteplayback"
           className="w-full h-full object-cover"
         />
 
-        {/* Central Luxury Play Overlay (Visible when paused) */}
-        {!isPlaying && (
-          <div className="absolute inset-0 bg-black/45 backdrop-blur-[2px] flex flex-col items-center justify-center transition-all duration-300 z-20 group-hover:bg-black/35">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-black/75 border-2 border-[#cba158] flex items-center justify-center text-[#cba158] shadow-[0_0_30px_rgba(203,161,88,0.45)] transition-all duration-300 group-hover:scale-110 group-hover:bg-[#cba158] group-hover:text-[#0c0c0d]">
-              <Play className="w-6 h-6 sm:w-7 sm:h-7 fill-current ml-1" />
-            </div>
-            <span className="mt-3 px-3 py-1 rounded-full bg-black/80 border border-[#cba158]/50 text-[#f4ede4] text-[10px] sm:text-[11px] font-mono uppercase tracking-wider font-semibold shadow-md">
-              Click to Play
+        {/* In-Playback Buffering Spinner (Only shown if actively playing and buffering) */}
+        {isPlaying && isBuffering && (
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center z-30 pointer-events-none">
+            <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 text-[#cba158] animate-spin" />
+            <span className="mt-2 text-[10px] font-mono uppercase tracking-wider text-[#f4ede4] font-medium">
+              Buffering...
             </span>
+          </div>
+        )}
+
+        {/* Central Luxury Play Overlay (Always visible when paused) */}
+        {!isPlaying && !hasError && (
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex flex-col items-center justify-center transition-all duration-300 z-20 group-hover:bg-black/30">
+            <button
+              type="button"
+              onClick={togglePlay}
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-black/80 border-2 border-[#cba158] flex items-center justify-center text-[#cba158] shadow-[0_0_30px_rgba(203,161,88,0.45)] transition-all duration-300 group-hover:scale-110 group-hover:bg-[#cba158] group-hover:text-[#0c0c0d] cursor-pointer"
+              aria-label={`Play ${reel.title}`}
+            >
+              {isBuffering ? (
+                <Loader2 className="w-6 h-6 sm:w-7 sm:h-7 animate-spin" />
+              ) : (
+                <Play className="w-6 h-6 sm:w-7 sm:h-7 fill-current ml-1" />
+              )}
+            </button>
+            <span className="mt-3 px-3 py-1 rounded-full bg-black/80 border border-[#cba158]/50 text-[#f4ede4] text-[10px] sm:text-[11px] font-mono uppercase tracking-wider font-semibold shadow-md pointer-events-none">
+              {isBuffering ? "Starting Reel..." : "Click to Play"}
+            </span>
+          </div>
+        )}
+
+        {/* Error Recovery Overlay */}
+        {hasError && (
+          <div className="absolute inset-0 bg-black/85 flex flex-col items-center justify-center z-30 p-4 text-center">
+            <p className="text-xs text-rose-400 font-mono mb-2">Playback Interrupted</p>
+            <button
+              type="button"
+              onClick={togglePlay}
+              className="px-3 py-1.5 rounded-lg bg-[#cba158] text-[#0c0c0d] font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md active:scale-95 cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Retry</span>
+            </button>
           </div>
         )}
 
@@ -197,7 +343,7 @@ function DedicatedVideoCard({ reel, total, activeAudioId, setActiveAudioId }) {
             onClick={togglePlay}
             aria-label={isPlaying ? "Pause video" : "Play video"}
             title={isPlaying ? "Pause" : "Play"}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/80 hover:bg-[#cba158] hover:text-[#0c0c0d] text-white border border-[#cba158]/40 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xl backdrop-blur-md pointer-events-auto"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/80 hover:bg-[#cba158] hover:text-[#0c0c0d] text-white border border-[#cba158]/40 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xl backdrop-blur-md pointer-events-auto active:scale-95"
           >
             {isPlaying ? (
               <Pause className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" />
@@ -212,7 +358,7 @@ function DedicatedVideoCard({ reel, total, activeAudioId, setActiveAudioId }) {
             onClick={toggleAudio}
             aria-label={isAudioActive ? "Mute audio" : "Unmute audio"}
             title={isAudioActive ? "Mute" : "Unmute"}
-            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xl backdrop-blur-md pointer-events-auto ${
+            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xl backdrop-blur-md pointer-events-auto active:scale-95 ${
               isAudioActive
                 ? "bg-[#cba158] text-[#0c0c0d] border border-[#cba158] ring-2 ring-[#cba158]/60 shadow-[0_0_18px_rgba(203,161,88,0.5)] scale-105"
                 : "bg-black/80 hover:bg-[#cba158] hover:text-[#0c0c0d] text-white border border-[#cba158]/40"
