@@ -1,21 +1,19 @@
-const { PHASE_DEVELOPMENT_SERVER } = require("next/constants");
-
 /** @type {import('next').NextConfig} */
-module.exports = (phase) => ({
-  // Keep dev server cache separate from `next build` (.next) to prevent runtime chunk conflicts
-  ...(phase === PHASE_DEVELOPMENT_SERVER ? { distDir: ".next-dev" } : {}),
+const nextConfig = {
+  output: "standalone",
+  distDir: process.env.npm_lifecycle_event === "dev" ? ".next-dev" : ".next",
   images: {
     unoptimized: true,
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
+        protocol: "https",
+        hostname: "images.unsplash.com",
       },
     ],
   },
   webpack: (config) => {
     config.infrastructureLogging = {
-      level: 'error',
+      level: "error",
     };
     return config;
   },
@@ -35,9 +33,11 @@ module.exports = (phase) => ({
   async rewrites() {
     return [
       {
-        source: '/:section(recipes|celebrations|why-us|faq|book|reservation)',
-        destination: '/',
+        source: "/:section(recipes|celebrations|why-us|faq|book|reservation)",
+        destination: "/",
       },
     ];
   },
-});
+};
+
+module.exports = nextConfig;
