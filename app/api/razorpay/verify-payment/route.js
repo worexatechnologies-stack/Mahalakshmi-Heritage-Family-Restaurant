@@ -7,6 +7,8 @@ const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, no-cache, must-revalidate",
 };
 
+const cleanEnv = (val) => String(val || "").trim().replace(/^['"]|['"]$/g, "");
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
@@ -165,12 +167,10 @@ export async function POST(request) {
       );
     }
 
-    const key_id = (
-      process.env.RAZORPAY_KEY_ID ||
-      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
-      ""
-    ).trim();
-    const key_secret = (process.env.RAZORPAY_KEY_SECRET || "").trim();
+    const key_id = cleanEnv(
+      process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+    );
+    const key_secret = cleanEnv(process.env.RAZORPAY_KEY_SECRET);
 
     if (!key_id || !key_secret) {
       console.error("[Razorpay Error]: Missing server RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET.");
@@ -253,11 +253,11 @@ export async function POST(request) {
     const emailHref = encodeURIComponent(String(data?.email || "").trim().slice(0, 100));
 
     // 3. Dispatch confirmation email via Node.js TLS SMTP
-    const smtpHost = (process.env.SMTP_HOST || "smtp.gmail.com").trim();
-    const smtpPort = parseInt(process.env.SMTP_PORT || "465", 10) || 465;
-    const smtpUser = (process.env.SMTP_USER || "").trim();
-    const smtpPass = (process.env.SMTP_PASS || "").replace(/\s+/g, "");
-    const recipientEmail = (process.env.RECIPIENT_EMAIL || smtpUser).trim();
+    const smtpHost = cleanEnv(process.env.SMTP_HOST) || "smtp.gmail.com";
+    const smtpPort = parseInt(cleanEnv(process.env.SMTP_PORT) || "465", 10) || 465;
+    const smtpUser = cleanEnv(process.env.SMTP_USER);
+    const smtpPass = cleanEnv(process.env.SMTP_PASS).replace(/\s+/g, "");
+    const recipientEmail = cleanEnv(process.env.RECIPIENT_EMAIL) || smtpUser;
 
     let emailSent = false;
 

@@ -5,6 +5,8 @@ const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, no-cache, must-revalidate",
 };
 
+const cleanEnv = (val) => String(val || "").trim().replace(/^['"]|['"]$/g, "");
+
 export async function POST(request) {
   try {
     const contentType = request.headers.get("content-type") || "";
@@ -25,12 +27,10 @@ export async function POST(request) {
       );
     }
 
-    const key_id = (
-      process.env.RAZORPAY_KEY_ID ||
-      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
-      ""
-    ).trim();
-    const key_secret = (process.env.RAZORPAY_KEY_SECRET || "").trim();
+    const key_id = cleanEnv(
+      process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+    );
+    const key_secret = cleanEnv(process.env.RAZORPAY_KEY_SECRET);
 
     if (!key_id || !key_secret) {
       console.error("[Razorpay Error]: Missing RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET in server environment.");
